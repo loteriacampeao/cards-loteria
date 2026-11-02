@@ -109,8 +109,12 @@ python3 triagem.py --imoveis /tmp/g/imoveis.json --m2 /tmp/g/db/m2 --cards /tmp/
 ## Débitos (condomínio, IPTU e outros)
 
 - O robô **nunca preenche** os débitos reais (`debitos.cond.valor`, `debitos.iptu.valor`): esses campos são do Magno.
-- O robô grava só a **estimativa** em `debitoEstimado` e a usa no líquido enquanto o real estiver vazio
-  (o líquido sem a estimativa fica em `margemLiquidaSemDebitos`):
+- O robô grava só a **estimativa** em `debitoEstimado`. **A estimativa NUNCA tira o imóvel do corte nem muda a
+  fila**: o corte e a fila usam o líquido SEM a estimativa (`margemLiquida`, `lanceMaximo`). A estimativa vira um
+  ALERTA para conferir: grave `alertaDebito: true`, `margemLiquidaComDebitoEstimado`, `lanceMaximoComDebitoEstimado`
+  e um ponto de atenção "CONFERIR DÉBITO DE CONDOMÍNIO: estimativa de R$ X (… meses × R$ … desde …). Se confirmado,
+  o líquido cai de A% para B% e o lance máximo de R$ … para R$ …". Quando o Magno preencher o débito real, vale o real.
+  Regras da estimativa:
   - **início:** a data conhecida da dívida (edital/anúncio) quando houver; senão, o mais conservador: a data em
     que o ex-proprietário COMPROU o imóvel (registro da compra/alienação na matrícula). Antes disso o dono era outro
     e a compra exige declaração de quitação do condomínio.
