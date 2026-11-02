@@ -998,7 +998,7 @@ function tileNovos(c){
   const out=[];
   if(lm>0) out.push(`<span><span class="k">Lance máx.</span> <b>${fR0(lm)}</b></span>`);
   if(k) out.push(`<span class="selo ${CONF[k]}" title="Probabilidade de vender pelo preço estimado. Alta: 3 ou mais anúncios no prédio/rua. Média: menos anúncios ou só no bairro. Baixa: poucos dados ou preço que parece alto.">Preço: probabilidade ${CONF_L[k]}</span>`);
-  if(c.liquidez) out.push(`<span class="selo gray" title="${esc(c.liquidezObs||"")}">Liquidez ${esc(String(c.liquidez).split(" ")[0].toLowerCase())}</span>`);
+  if(c.liquidez) out.push(`<span class="selo gray" title="${esc("Tempo estimado para revender. Alta: até 6 meses. Média: até 12 meses. Baixa: mais de 12 meses."+(c.liquidezObs?"\n"+String(c.liquidezObs).replace(/^Estimativa automática:\s*/,"Por quê: "):""))}">Liquidez ${esc(String(c.liquidez).split(" ")[0].toLowerCase())}</span>`);
   if(c.alertaDebito) out.push(`<span class="selo yel" title="Conferir débito de condomínio estimado">Conferir débito</span>`);
   return out.length?`<div class="tnov">${out.join("")}</div>`:"";
 }
@@ -1442,7 +1442,7 @@ function resumoGerencial(c){
       <div class="stat"><span class="lbl">Líquido</span><b class="big ${ml>=cL()?"pos":"neg"}">${fP(ml)}</b></div>
       <div class="stat"><span class="lbl">Lance máx. (${CFG.corteLiquido}%)</span><b>${lm>0?fK(lm):"—"}</b></div>
       <div class="stat"><span class="lbl">Preço: probabilidade</span><b>${k?CONF_L[k]:"—"}</b></div>
-      <div class="stat"><span class="lbl">Liquidez</span><b>${esc(c.liquidez?String(c.liquidez).split(" ")[0]:"—")}</b></div>
+      <div class="stat" title="Tempo estimado para revender. Alta: até 6 meses. Média: até 12 meses. Baixa: mais de 12 meses."><span class="lbl">Liquidez</span><b>${esc(c.liquidez?String(c.liquidez).split(" ")[0]:"—")}</b></div>
       <div class="stat"><span class="lbl">Jurídico</span><b class="${j.travas.length?"neg":""}">${j.travas.length?j.travas.length+" trava(s)":j.resp+"/"+j.total}</b></div></div>
     ${c.alertaDebito&&de?`<div class="alert yel"><b>Conferir débito de condomínio:</b> estimado ${fR(+de.considerado)}. Se confirmado, líquido ${fP(+c.margemLiquidaComDebitoEstimado)}${+c.lanceMaximoComDebitoEstimado>0?" e lance máx. "+fK(+c.lanceMaximoComDebitoEstimado):""}.</div>`:""}
     ${j.travas.length?`<div class="alert red">${j.travas.map(t=>esc(t.q)).join("<br>")}</div>`:""}
