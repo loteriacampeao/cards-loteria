@@ -1,0 +1,3 @@
+testes/Lista_imoveis_*.csv
+__pycache__/
+*.pyc
