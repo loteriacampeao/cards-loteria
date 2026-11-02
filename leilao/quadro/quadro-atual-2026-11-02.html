@@ -1,0 +1,1988 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Captura de Leilão</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: mesa de trabalho — menu fixo no topo, quadro de 4 colunas (uma por vez no celular), ficha do imóvel em painel lateral; a calculadora mantém a ficha de cálculo em duas colunas */
+:root{
+  --bg:#f3f4f2; --panel:#ffffff; --sunk:#eceeea; --line:#d7dbd4; --ink:#1c2321; --muted:#5d6762;
+  --accent:#1d4e89; --accent-ink:#ffffff; --accent-soft:#e3ebf6;
+  --ok:#17784a; --ok-soft:#dcefe4; --warn:#9a6500; --warn-soft:#f6ead2; --bad:#b3261e; --bad-soft:#f7dedb;
+  --gray:#5d6762; --gray-soft:#e4e7e2; --shade:rgba(20,26,24,.38);
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121615; --panel:#1a1f1e; --sunk:#151a19; --line:#2c3432; --ink:#e7ebe8; --muted:#97a29d;
+  --accent:#7fb0ec; --accent-ink:#0d1a2b; --accent-soft:#1c2b3e;
+  --ok:#5fcf93; --ok-soft:#173326; --warn:#e3b45a; --warn-soft:#352a14; --bad:#f08a80; --bad-soft:#3a1d1a;
+  --gray:#a3ada8; --gray-soft:#262d2b; --shade:rgba(0,0,0,.55); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121615; --panel:#1a1f1e; --sunk:#151a19; --line:#2c3432; --ink:#e7ebe8; --muted:#97a29d;
+  --accent:#7fb0ec; --accent-ink:#0d1a2b; --accent-soft:#1c2b3e;
+  --ok:#5fcf93; --ok-soft:#173326; --warn:#e3b45a; --warn-soft:#352a14; --bad:#f08a80; --bad-soft:#3a1d1a;
+  --gray:#a3ada8; --gray-soft:#262d2b; --shade:rgba(0,0,0,.55); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:20px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:15px;font-weight:600}
+h3{font-size:13.5px;font-weight:600}
+a{color:var(--accent)}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.lbl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 12px;font-weight:500}
+button:hover{border-color:var(--muted)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button.pri:hover:not(:disabled){filter:brightness(1.08)}
+button.danger{color:var(--bad)}
+button.sm{padding:5px 9px;font-size:12.5px}
+button.link{border:0;background:none;color:var(--accent);padding:2px 4px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+textarea{font:inherit;color:var(--ink)}
+
+/* menu */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--panel);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1500px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{display:flex;align-items:baseline;gap:8px;margin-right:auto}
+.brand small{color:var(--muted);font-size:12px}
+.menu{display:flex;gap:2px;overflow-x:auto;max-width:100%}
+.menu a{display:block;padding:7px 12px;border-radius:6px;color:var(--muted);text-decoration:none;font-weight:500;white-space:nowrap}
+.menu a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.menu a .ct{font-family:var(--f-num);font-size:11.5px;margin-left:4px;opacity:.8}
+.who{font-size:12px;color:var(--muted)}
+.wrap{max-width:1500px;margin:0 auto;padding-block:16px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.banner{padding:10px 14px;border-radius:6px;background:var(--warn-soft);color:var(--warn);font-size:13px;margin-bottom:12px}
+.banner.bad{background:var(--bad-soft);color:var(--bad)}
+
+/* barra do quadro */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.toolbar .l{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.search{display:flex;align-items:center;border:1px solid var(--line);border-radius:6px;background:var(--panel);min-width:0}
+.search input{border:0;background:transparent;color:var(--ink);font:inherit;padding:8px 10px;outline:none;width:220px;max-width:100%}
+.cut{font-size:12.5px;color:var(--muted)}
+.cut b{font-family:var(--f-num);color:var(--ink)}
+
+/* quadro */
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;align-items:start}
+.col.tri{background:var(--bg);border-style:dashed}
+.col{background:var(--sunk);border:1px solid var(--line);border-radius:var(--r);min-width:0;display:flex;flex-direction:column}
+.col-h{padding:10px 12px;border-bottom:1px solid var(--line);display:grid;gap:2px}
+.col-h .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.col-h .t h2{font-size:14px}
+.col-h .t .n{font-family:var(--f-num);font-size:12px;color:var(--muted)}
+.col-h .rule{font-size:11.5px;color:var(--muted)}
+.col-b{padding:10px;display:grid;gap:8px}
+.col-empty{font-size:12.5px;color:var(--muted);padding:6px 4px 10px}
+.mcols.seg{display:none}
+@media (max-width:1250px){.board{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:900px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:720px){
+  .mcols.seg{display:flex;margin-bottom:10px}
+  .mcols button{flex:1;padding:7px 4px;font-size:12px}
+  .board{grid-template-columns:minmax(0,1fr)}
+  .board .col:not(.on){display:none}
+}
+
+.tilew{position:relative}
+.tmenu{position:absolute;top:5px;right:5px;padding:1px 8px 5px;font-size:17px;line-height:1;border-color:transparent;background:transparent;color:var(--muted);letter-spacing:1px}
+.tmenu:hover,.tmenu[aria-expanded="true"]{border-color:var(--line);background:var(--sunk);color:var(--ink)}
+.pop{position:fixed;z-index:70;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.2);padding:4px;display:grid;min-width:200px}
+.pop button{border:0;text-align:left;background:none;padding:8px 10px;border-radius:5px;font-weight:500}
+.pop button:hover,.pop button:focus-visible{background:var(--sunk)}
+.pop .sep{border-top:1px solid var(--line);margin:4px 0}
+.tile{display:grid;gap:6px;text-align:left;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:10px 11px;font-weight:400}
+.tile:hover{border-color:var(--accent)}
+.tile{overflow:hidden}
+.tile .ph{margin:-10px -11px 2px;height:112px;background:var(--sunk);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);position:relative}
+.tile .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.tile .ph svg{width:30px;height:30px;opacity:.45}
+.tile .ph .nf{position:absolute;bottom:6px;left:8px;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;font-weight:600;opacity:.75}
+.tilew .tmenu{background:var(--panel);border-color:var(--line);opacity:.92}
+.tile .top{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding-right:28px}
+.tile .mod{font-size:11px;color:var(--muted);letter-spacing:.02em;margin-right:auto}
+.tile .tt{font-family:var(--f-display);font-weight:600;font-size:14px;line-height:1.25}
+.tile .sub{font-size:12px;color:var(--muted)}
+.tile .big{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-top:1px solid var(--line);padding-top:6px}
+.tile .big b{font-family:var(--f-num);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.tile .big .small{font-family:var(--f-num);font-size:12.5px;text-align:right}
+.tile .foot{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--muted)}
+.prog{display:flex;gap:8px;font-size:11.5px}
+.prog span{color:var(--muted)}
+.prog span.y{color:var(--ok);font-weight:600}
+.selo{font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:2px 6px;border-radius:4px;text-transform:uppercase;white-space:nowrap}
+.selo.red{background:var(--bad-soft);color:var(--bad)}
+.selo.yel{background:var(--warn-soft);color:var(--warn)}
+.selo.gray{background:var(--gray-soft);color:var(--gray)}
+.selo.green{background:var(--ok-soft);color:var(--ok)}
+.selo.blue{background:var(--accent-soft);color:var(--accent)}
+.pos{color:var(--ok)} .neg{color:var(--bad)} .wrn{color:var(--warn)}
+
+/* painel do imóvel */
+.shade{position:fixed;inset:0;background:var(--shade);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(820px,100%);background:var(--bg);z-index:41;display:flex;flex-direction:column;border-left:1px solid var(--line);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px)}
+@media (max-width:820px){.drawer{padding-left:env(safe-area-inset-left,0px)}}
+.dh{background:var(--panel);border-bottom:1px solid var(--line);padding:12px 16px 0;display:grid;gap:8px}
+.dh .row1{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.dh .row1 h1{font-size:18px}
+.dh .meta{font-size:12px;color:var(--muted)}
+.steps{display:flex;gap:4px;flex-wrap:wrap}
+.steps span{font-size:11.5px;padding:3px 8px;border-radius:99px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.steps span.on{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.steps span.done{background:var(--accent-soft);color:var(--accent)}
+#dh{display:grid;gap:8px}
+.dh .df{background:none;border:0;padding:0;display:grid;gap:6px}
+.dh .df .acts{justify-content:flex-start}
+.dh .df .acts .sp{order:9;margin-left:auto;margin-right:0}
+details.why>summary{cursor:pointer;font-size:12.5px;color:var(--warn);list-style:none}
+details.why>summary::-webkit-details-marker{display:none}
+details.why>summary::before{content:"▸ ";font-size:10px}
+details.why[open]>summary::before{content:"▾ "}
+details.why ul{margin:4px 0 0;padding:0}
+.dtabs{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 12px}
+.dtabs button{border:1px solid var(--line);border-radius:6px;background:var(--panel);padding:6px 11px;color:var(--ink);font-size:13px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.dtabs button:hover{border-color:var(--accent)}
+.dtabs button[aria-selected="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+@media (max-width:560px){.dtabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.dtabs button{justify-content:center;padding:7px 4px;font-size:12px;white-space:normal;text-align:center;line-height:1.2}}
+#dfoot{flex:none}
+.fase-leg{font-size:12.5px;color:var(--ink);padding:2px 0 6px}
+.dtabs button.fora{color:var(--muted);background:var(--sunk);border-style:dashed}
+.dtabs button.fase.pend{border-color:var(--warn);background:var(--warn-soft);color:var(--warn);font-weight:600}
+.dtabs button.fase.ok{border-color:var(--ok)}
+.dtabs button .dot{width:7px;height:7px;border-radius:50%;background:var(--warn);display:inline-block;flex:none}
+.dtabs button[aria-selected="true"]{outline:2px solid var(--accent);outline-offset:1px}
+.dtabs button .bd{font-family:var(--f-num);font-size:10.5px;margin-left:4px;padding:1px 5px;border-radius:99px;background:var(--bad-soft);color:var(--bad)}
+.dtabs button .bd.ok{background:var(--ok-soft);color:var(--ok)}
+.db{flex:1;overflow-y:auto;padding:14px 16px 24px;display:grid;gap:14px;align-content:start}
+.df{background:var(--panel);border-top:1px solid var(--line);padding:10px 16px;display:grid;gap:8px}
+.df .acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;align-items:center}
+.df .acts .sp{margin-right:auto;font-size:12px;color:var(--muted)}
+.why{font-size:12.5px;color:var(--muted);display:grid;gap:2px}
+.why li{margin-left:16px}
+.why.ok{color:var(--ok)}
+
+.box{background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.box>.hd{padding:11px 14px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between}
+.box>.hd small{font-size:12px;color:var(--muted);font-weight:400;font-family:var(--f-body)}
+.box>.bd{padding:12px 14px;display:grid;gap:10px}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.fields .full{grid-column:1/-1}
+@media (max-width:560px){.fields,.fields.three{grid-template-columns:minmax(0,1fr)}}
+label.f{display:grid;gap:4px;font-size:12px;color:var(--muted);font-weight:500;min-width:0}
+.in{display:flex;align-items:center;border:1px solid var(--line);border-radius:6px;background:var(--sunk);min-width:0}
+.in:focus-within{border-color:var(--accent)}
+.in span{padding:0 8px;color:var(--muted);font-size:12px;font-family:var(--f-num)}
+.in input,.in select,.in textarea{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;padding:8px 10px;outline:none}
+.in textarea{min-height:64px;resize:vertical}
+.in input.n{font-family:var(--f-num);text-align:right}
+.hint{font-size:11.5px;color:var(--muted)}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;border-radius:0;padding:6px 10px;font-size:12.5px;background:var(--panel)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.seg.ans button[aria-pressed="true"][data-v="sim"]{background:var(--accent-soft);color:var(--accent)}
+.alert{padding:9px 12px;border-radius:6px;font-size:12.5px;display:grid;gap:6px}
+.alert.red{background:var(--bad-soft);color:var(--bad)}
+.alert.yel{background:var(--warn-soft);color:var(--warn)}
+.alert.green{background:var(--ok-soft);color:var(--ok)}
+.alert.gray{background:var(--sunk);color:var(--muted)}
+.alert b{font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--panel);padding:9px 11px;display:grid;gap:2px;min-width:0}
+.stat b{font-family:var(--f-num);font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat b.big{font-size:21px}
+.praca{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,.7fr) minmax(0,1fr) auto;gap:8px;align-items:end}
+@media (max-width:560px){.praca{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.praca .pn{grid-column:1/-1}}
+.praca .pn{font-size:12px;font-weight:600;color:var(--muted);padding-bottom:9px}
+
+/* comparáveis */
+.comp{border:1px solid var(--line);border-radius:6px;padding:10px;display:grid;gap:8px;background:var(--panel)}
+.comp.off{opacity:.55}
+.comp .ch{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between}
+.comp .cg{display:grid;grid-template-columns:minmax(0,2.4fr) repeat(3,minmax(0,1fr));gap:8px}
+.comp .cg2{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:560px){.comp .cg,.comp .cg2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.comp .cg .lk{grid-column:1/-1}}
+
+/* fontes e pontos de atenção */
+.fonte{border:1px solid var(--line);border-radius:7px;padding:10px 12px;display:grid;gap:5px;background:var(--panel)}
+.fonte.off{opacity:.6}
+.fonte .fh{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.fonte .fh b{font-family:var(--f-display);font-size:13.5px}
+.fonte .fh .acts{margin-left:auto;display:flex;gap:6px;align-items:center}
+.fonte .fd{font-size:13.5px}
+.fonte .fn{font-family:var(--f-num);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+a.go{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:1px solid var(--line);border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:500;white-space:nowrap}
+a.go:hover{border-color:var(--accent)}
+.pontos{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.pontos li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:start;padding:7px 10px;background:var(--sunk);border-radius:6px;font-size:13.5px}
+.pontos li .n{font-family:var(--f-num);font-size:11.5px;color:var(--muted);padding-top:2px}
+.pontos .pe{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:8px;align-items:end}
+@media (max-width:560px){.pontos .pe{grid-template-columns:minmax(0,1fr)}}
+/* jurídico */
+.blk{display:grid;gap:0}
+.blk>summary{list-style:none;cursor:pointer;padding:11px 14px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between}
+.blk>summary::-webkit-details-marker{display:none}
+.blk>summary h3{display:flex;gap:8px;align-items:center}
+.blk>summary h3::before{content:"▸";color:var(--muted);font-size:11px;transition:transform .15s}
+.blk[open]>summary h3::before{transform:rotate(90deg)}
+.blk[open]>summary{border-bottom:1px solid var(--line)}
+.blk .meta{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.q{padding:11px 14px;border-top:1px solid var(--line);display:grid;gap:7px}
+.q:first-of-type{border-top:0}
+.q .qt{font-size:13.5px;display:flex;gap:6px;align-items:flex-start}
+.q .qt .lk{color:var(--bad);font-size:12px;flex:none;padding-top:1px}
+.q.na{opacity:.6}
+.q.locked{background:var(--bad-soft)}
+.q.locked .qt{color:var(--bad)}
+.q .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.q .obs{flex:1;min-width:180px}
+.q .att{font-size:12px}
+.q .att a{word-break:break-all}
+
+/* listas */
+.list{display:grid;gap:8px}
+.item{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:10px 12px;display:grid;gap:4px}
+.item .r1{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;justify-content:space-between}
+.item .tt{font-weight:600;font-family:var(--f-display)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chipf{border-radius:99px;padding:5px 11px;font-size:12.5px}
+.chipf[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);font-weight:600}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--panel)}
+thead th{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--panel)}
+td{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+td:first-child,td.tx{font-family:var(--f-body)}
+td.tx,th.tx{text-align:left}
+td.wrapc{white-space:normal;min-width:220px}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--sunk)}
+.files{display:grid;gap:6px}
+.file{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;padding:6px 0;border-top:1px solid var(--line)}
+.file:first-child{border-top:0}
+.file a{margin-right:auto;word-break:break-all}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px}
+.thumbs figure{margin:0;position:relative}
+.thumbs img{width:120px;height:90px;object-fit:cover;border-radius:6px;border:1px solid var(--line);display:block}
+.thumbs button{position:absolute;top:4px;right:4px;padding:1px 6px;font-size:11px}
+.capa{display:block;width:100%;aspect-ratio:4/3;max-height:340px;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--sunk)}
+.capa img{width:100%;height:100%;object-fit:cover;display:block}
+.capa.vazia{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:12.5px;aspect-ratio:auto;height:140px}
+.capa.vazia svg{width:34px;height:34px;opacity:.5}
+.cmt{display:grid;gap:2px;padding:8px 0;border-top:1px solid var(--line)}
+.cmt:first-child{border-top:0}
+.cmt .by{font-size:12px;color:var(--muted)}
+.cmt .tx{white-space:pre-wrap}
+.log{font-size:12.5px;display:grid;gap:4px;max-height:320px;overflow:auto}
+.log div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px}
+.log .w{color:var(--muted);font-family:var(--f-num);font-size:11.5px;white-space:nowrap}
+.empty{padding:16px;color:var(--muted);font-size:13px}
+.save-state{font-size:12px;color:var(--muted)}
+.dlg{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:var(--shade);padding:16px}
+.dlg .box{width:min(520px,100%);max-height:90vh;overflow:auto}
+
+/* calculadora (mesmo padrão da Calculadora de Arremate) */
+.ctop{display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between;margin-bottom:16px}
+.ctop .sub{font-size:13px;color:var(--muted)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;align-items:start}
+.grid.one{grid-template-columns:minmax(0,1fr)}
+.side{display:grid;gap:16px;min-width:0}
+@media (max-width:920px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.sec{padding:14px 16px;border-top:1px solid var(--line)}
+.sec:first-child{border-top:0}
+.sec h2{margin-bottom:10px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.sec h2 small{font-family:var(--f-body);font-weight:400;font-size:12px;color:var(--muted)}
+.calc-note{font-size:12px;color:var(--muted);font-family:var(--f-num)}
+.sims{max-height:300px;overflow:auto}
+.sim{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 16px;border-top:1px solid var(--line);cursor:pointer;background:none;border-left:3px solid transparent;width:100%;text-align:left;border-radius:0;border-right:0;border-bottom:0}
+.sim:first-child{border-top:0}
+.sim:hover{background:var(--sunk)}
+.sim[aria-current="true"]{border-left-color:var(--accent);background:var(--accent-soft)}
+.sim .t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sim .c{font-size:12px;color:var(--muted)}
+.chip{font-family:var(--f-num);font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.verdict{padding:16px;display:grid;gap:12px}
+.vhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between}
+.badge{font-family:var(--f-display);font-weight:600;font-size:13px;padding:5px 10px;border-radius:6px}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.bad{background:var(--bad-soft);color:var(--bad)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+@media (max-width:560px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--panel);padding:10px 12px;display:grid;gap:2px;min-width:0}
+.kpi b{font-family:var(--f-num);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi b.big{font-size:24px}
+.maxbid{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;padding:10px 12px;background:var(--sunk);border-radius:6px;font-size:13px}
+.maxbid b{font-family:var(--f-num);font-size:16px}
+.tabs{display:flex;gap:2px;padding:0 16px;border-bottom:1px solid var(--line)}
+.tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;padding:10px 10px;color:var(--muted)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+tr.tot td{font-weight:600;border-top:1px solid var(--muted)}
+.hl{background:var(--accent-soft)!important}
+th.hl{color:var(--accent)}
+td.c-ok{color:var(--ok);background:var(--ok-soft)}
+td.c-warn{color:var(--warn);background:var(--warn-soft)}
+td.c-bad{color:var(--bad);background:var(--bad-soft)}
+tr.maxrow td:first-child{font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:10px;padding:10px 16px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.foot{padding:10px 16px 14px;font-size:12px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.kpi b,.badge{transition:color .15s}.drawer{animation:slin .18s ease-out}}
+@keyframes slin{from{transform:translateX(24px);opacity:.6}to{transform:none;opacity:1}}
+.m2st{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);margin:2px 0 12px}
+.m2det{display:grid;gap:8px;padding:6px 0 4px;font-size:12.5px}
+.m2det ul{margin:0;padding-left:18px;display:grid;gap:2px}
+.m2det .acts{display:flex;flex-wrap:wrap;gap:8px}
+.m2ed .box{width:min(640px,100%)}
+.m2fon{display:grid;gap:6px}
+.m2fon .rw{display:grid;grid-template-columns:minmax(0,1fr) 150px 96px auto;gap:6px;align-items:center}
+@media (max-width:560px){.m2fon .rw{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.m2fon .rw .lk{grid-column:1/-1}}
+.m2fon .rw .in input{padding:6px 8px}
+.m2calc{font-size:12.5px;color:var(--muted)}
+.m2calc b{font-family:var(--f-num);color:var(--ink)}
+.m2ref{font-size:12.5px;padding:8px 10px;border-radius:6px;background:var(--sunk);color:var(--ink)}
+</style>
+
+<nav class="nav"><div class="nav-in">
+  <div class="brand"><h1>Captura de Leilão</h1><small id="whoLbl"></small></div>
+  <div class="menu" role="navigation">
+    <a href="#oportunidades" data-view="oportunidades">Oportunidades<span class="ct" id="ctOp"></span></a>
+    <a href="#calculadora" data-view="calculadora">Calculadora</a>
+    <a href="#descartados" data-view="descartados">Descartados<span class="ct" id="ctDe"></span></a>
+    <a href="#historico" data-view="historico">Histórico<span class="ct" id="ctHi"></span></a>
+    <a href="#m2" data-view="m2">Base de m²<span class="ct" id="ctM2"></span></a>
+  </div>
+  <button type="button" class="sm" id="btnCfg">Padrões</button>
+</div></nav>
+
+<main class="wrap">
+  <div id="banner" class="banner" hidden></div>
+  <section id="v-oportunidades">
+    <div class="toolbar">
+      <div class="l">
+        <button type="button" class="pri" id="btnNovo">+ Novo imóvel</button>
+        <label class="search"><input id="q" type="search" placeholder="Buscar cidade, bairro, endereço…" aria-label="Buscar"></label>
+      </div>
+      <div class="cut" id="cutInfo"></div>
+    </div>
+    <div class="mcols seg" id="mcols"></div>
+    <div class="board" id="board"></div>
+  </section>
+  <section id="v-calculadora" hidden></section>
+  <section id="v-descartados" hidden></section>
+  <section id="v-historico" hidden></section>
+  <section id="v-m2" hidden></section>
+</main>
+<div id="drawerRoot"></div>
+<div id="dlgRoot"></div>
+<script>
+(function(){
+"use strict";
+/* =================== utilidades =================== */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const safeUrl=u=>/^https?:\/\//i.test(String(u||"").trim())?String(u).trim():"";
+const hrefOk=u=>esc(safeUrl(u));
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clone=o=>o==null?o:JSON.parse(JSON.stringify(o));
+const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+const brl=new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"});
+const n2=new Intl.NumberFormat("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fR=v=>isFinite(v)?brl.format(v):"—";
+const fP=v=>isFinite(v)?(v*100).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+"%":"—";
+const fK=v=>{ if(!isFinite(v)) return "—"; const a=Math.abs(v); return (v<0?"-":"")+"R$ "+(a>=1000?(a/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mil":n2.format(a)); };
+function parseNum(s){
+  if(typeof s==="number") return s;
+  s=String(s||"").trim().replace(/[R$\s%]/g,"");
+  if(!s) return 0;
+  if(s.includes(",")) s=s.replace(/\./g,"").replace(",",".");
+  else if(/^\d{1,3}(\.\d{3})+$/.test(s)) s=s.replace(/\./g,"");
+  const v=parseFloat(s); return isFinite(v)?v:0;
+}
+const fMoneyIn=v=>(+v)?n2.format(+v):"";
+function fD(iso){ if(!iso) return "—"; const p=String(iso).slice(0,10).split("-"); return p.length===3? p[2]+"/"+p[1]+"/"+p[0] : iso; }
+function fDT(iso){ const d=new Date(iso); return isNaN(d)?"—":d.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}); }
+function todayISO(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function daysUntil(iso){ const [y,m,d]=String(iso).slice(0,10).split("-").map(Number); const t=new Date(); return Math.round((Date.UTC(y,m-1,d)-Date.UTC(t.getFullYear(),t.getMonth(),t.getDate()))/864e5); }
+function quando(iso){ const n=daysUntil(iso); return n===0?"hoje":n===1?"amanhã":n>1?"em "+n+" dias":n===-1?"ontem":"há "+(-n)+" dias"; }
+const rid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+function getPath(o,p){ return p.split(".").reduce((a,k)=>a==null?a:a[k],o); }
+const isObj=v=>v!=null&&typeof v==="object"&&!Array.isArray(v);
+/* caminho que vai para o banco: o próprio campo, ou a lista inteira quando ele está dentro de uma lista
+   (o banco junta objetos, mas troca listas inteiras) */
+function patchPath(o,p){ const ks=p.split("."), acc=[]; let a=o; for(const k of ks){ if(Array.isArray(a)) break; acc.push(k); a=a==null?a:a[k]; } return acc.join("."); }
+/* histórico e comentários: um mapa por id; cada pessoa só acrescenta a própria entrada */
+function logOf(c){ return (c.log||[]).concat(Object.values(c.logx||{}).filter(Boolean)).sort((a,b)=>String(a.em).localeCompare(String(b.em))); }
+function cmtsOf(c){ return (c.comentarios||[]).concat(Object.values(c.cmtx||{}).filter(Boolean)).sort((a,b)=>String(a.em).localeCompare(String(b.em))); }
+function logPatch(txts,ts,por){ const m={}; for(const t of txts) m[rid()]={em:ts,por:por??null,txt:t}; return m; }
+function setPath(o,p,v){ const ks=p.split("."); let a=o; for(let i=0;i<ks.length-1;i++){ if(a[ks[i]]==null||typeof a[ks[i]]!=="object") a[ks[i]]={}; a=a[ks[i]]; } a[ks[ks.length-1]]=v; }
+
+/* =================== padrões (config/padroes) =================== */
+const CFG_DEF={giro:12,reforma:3000,corteBruto:60,corteLiquido:30,itbiPadrao:2,itbi:{"Belo Horizonte":3}};
+let CFG=clone(CFG_DEF);
+function itbiDe(cidade){ const n=norm(cidade); for(const k in (CFG.itbi||{})){ if(norm(k)===n) return +CFG.itbi[k]; } return +CFG.itbiPadrao||2; }
+const cB=()=>(+CFG.corteBruto||60)/100, cL=()=>(+CFG.corteLiquido||30)/100;
+
+/* =================== modalidades =================== */
+const MOD_EXT=["Caixa – Leilão SFI","Caixa – Licitação aberta","Caixa – Venda online/direta","Banco – Lei 9.514 (1º/2º leilão)"];
+const MOD_JUD=["Cível","Trabalhista","Fiscal","Condomínio","Falência/Recuperação","Outro"];
+function tipoDaModalidade(m){ const n=norm(m); if(!n) return null; if(n.includes("judicial")&&!n.includes("extra")) return "Judicial"; if(MOD_JUD.some(x=>norm(x)===n)) return "Judicial"; return "Extrajudicial"; }
+const isPGFN=c=>/pgfn|comprei/i.test([c.modalidade,c.credor,c.linkAnuncio,c.leiloeiroSite].join(" "))||/pgfn/i.test([c.descricao,c.observacoes].join(" "));
+const isLei9514=c=>/9\.?514|1º\/2º|banco/i.test(c.modalidade||"");
+const isCaixaDireta=c=>/venda online|venda direta|direta|licita/i.test(c.modalidade||"")&&!isLei9514(c);
+
+/* =================== motor da Calculadora de Arremate (sem alterações) =================== */
+const MG=[[1400,220.55],[2720,359.76],[5440,521.35],[7000,721.75],[14000,962.47],[28000,1243.47],[42000,1564.07],[56000,1925.31],[70000,2326.51],[105000,2928.06],[140000,3721.52],[175000,3979.69],[210000,4238.32],[280000,4772.07],[350000,4903.53],[420000,5035.59],[560000,5523.14],[700000,5826.70],[840000,6130.87],[1120000,6866.53],[1400000,7437.64],[1680000,8009.72],[3200000,8582.97]];
+/* tabela de cartório: a de Padrões, se houver; senão a TJMG 2026 acima */
+function tabCart(){ const t=CFG.cartorio; return Array.isArray(t)&&t.length?t.map(x=>[+x.ate,+x.valor]):MG; }
+function cartMG(v){ if(v<=0) return 0; const t=tabCart(); for(const [lim,val] of t){ if(v<=lim) return val; } return t[t.length-1][1]; }
+function irPF(g){ if(g<=0) return 0; const f=[[5e6,.15],[10e6,.175],[30e6,.2],[Infinity,.225]]; let t=0,prev=0; for(const [lim,a] of f){ if(g>prev){ t+=(Math.min(g,lim)-prev)*a; } prev=lim; } return t; }
+function calc(p,lance,giro){
+  const leil=lance*p.leiloeiro/100;
+  const itbi=lance*p.itbi/100;
+  let esc,reg;
+  if(p.cartModo==="manual"){ esc=p.escrManual; reg=p.regManual; }
+  else { reg=cartMG(lance); esc=p.escritura? cartMG(lance):0; }
+  const mRec=giro; /* condomínio e IPTU contam desde o 1º mês */
+  const cond=p.condominio*mRec, iptu=p.iptu*mRec;
+  const inicial=lance+leil+itbi+esc+reg+p.debitos+p.reforma+p.desocupacao;
+  const custo=inicial+cond+iptu;
+  let oport=0;
+  if(p.oport>0){
+    const r=Math.pow(1+p.oport/100,1/12)-1;
+    oport=inicial*(Math.pow(1+r,giro)-1);
+    const m=p.condominio+p.iptu;
+    if(m>0&&mRec>0) oport+=m*((Math.pow(1+r,mRec)-1)/r)-m*mRec;
+  }
+  const venda=p.venda, corr=venda*p.corretagem/100;
+  const ganho=venda-corr-lance-leil-itbi-esc-reg-p.reforma;
+  const ir= p.trib==="pf"? irPF(ganho) : p.trib==="pj"? venda*p.pjAliq/100 : 0;
+  const res=venda-corr-custo-ir-oport;
+  const roi=custo>0? res/custo : NaN;
+  const mes=(isFinite(roi)&&roi>-1)? Math.pow(1+roi,1/giro)-1 : NaN;
+  return {venda,corr,lance,leil,itbi,esc,reg,debitos:p.debitos,reforma:p.reforma,desoc:p.desocupacao,cond,iptu,oport,ir,custo,res,roi,mes};
+}
+function lanceMax(p,giro){
+  const alvo=p.minimo/100; if(p.venda<=0) return NaN;
+  let lo=0,hi=p.venda; if(calc(p,1,giro).roi<alvo) return NaN;
+  for(let i=0;i<60;i++){ const mid=(lo+hi)/2; if(calc(p,mid,giro).roi>=alvo) lo=mid; else hi=mid; }
+  return Math.floor(lo/100)*100;
+}
+function cls(roi,min){ return !isFinite(roi)?"": roi>=min?"ok": roi>=0?"warn":"bad"; }
+const DEFAULTS={nome:"",cidade:"",link:"",tipo:"leilao",lance:0,venda:0,leiloeiro:5,corretagem:6,giro:12,minimo:30,itbi:2,cartModo:"auto",escritura:true,escrManual:0,regManual:0,debitos:0,reforma:3000,desocupacao:0,condominio:0,iptu:0,trib:"pf",pjAliq:6.73,oport:0,incremento:5000};
+function defaultsCfg(){ return Object.assign({},DEFAULTS,{giro:+CFG.giro||12,reforma:+CFG.reforma||0,minimo:+CFG.corteLiquido||30}); }
+function simParams(s){ const p=Object.assign({},DEFAULTS,s); delete p.id; delete p.atualizadoEm; delete p.cardId; return p; }
+
+/* =================== estado =================== */
+let db=null, user=null, assets=null, myId=null, canWrite=true;
+const cards=new Map(); let sims=[], hist=[]; let loaded={cards:false,sims:false,hist:false};
+const names={};
+
+/* =================== derivados do card =================== */
+function pracas(c){ return (c.pracas||[]).filter(p=>p&&p.data).slice().sort((a,b)=>(a.data+(a.hora||"")).localeCompare(b.data+(b.hora||""))); }
+/* praça de referência: sempre a última (2ª) praça que ainda vai acontecer; a 1ª só quando o lance dela for menor */
+function proxPraca(c){ const t=todayISO(); const fut=pracas(c).filter(p=>p.data>=t); if(!fut.length) return null; const vs=fut.filter(p=>+p.valor>0); if(!vs.length) return fut[fut.length-1]; let best=vs[vs.length-1]; for(const p of vs) if(+p.valor<+best.valor) best=p; return best; }
+/* praça futura mais próxima (habilitação e prazos); o card só sai quando a ÚLTIMA praça passa */
+function proxData(c){ const t=todayISO(); return pracas(c).find(p=>p.data>=t)||null; }
+function pracaLbl(c,p){ const ps=pracas(c); return ps.length>1?(ps.indexOf(p)+1)+"ª praça":"Praça"; }
+function ultimaPraca(c){ const ps=pracas(c); return ps[ps.length-1]||null; }
+/* lance de referência = menor valor mínimo entre as praças que ainda vão acontecer (o lance que você pode dar) */
+function lanceRef(c){
+  const r=proxPraca(c); if(r&&+r.valor>0) return +r.valor;
+  const u=ultimaPraca(c); if(u&&+u.valor>0) return +u.valor;
+  const any=(c.pracas||[]).find(p=>+p.valor>0); return any? +any.valor : 0;
+}
+function lanceRefLbl(c){ const r=proxPraca(c); if(!r) return "lance"; const ps=pracas(c); return ps.length>1? (ps.indexOf(r)+1)+"ª praça" : "praça única"; }
+const DIAS=["dom","seg","ter","qua","qui","sex","sáb"];
+function fDia(iso){ const [y,m,d]=String(iso).slice(0,10).split("-").map(Number); const w=new Date(y,m-1,d).getDay(); return d.toString().padStart(2,"0")+"/"+String(m).padStart(2,"0")+" ("+DIAS[w]+")"; }
+const NIV=["predio","rua","bairro"], NIVL={predio:"Prédio",rua:"Rua",bairro:"Bairro"};
+function nivKey(s){ const n=norm(s); return n.startsWith("pred")||n.startsWith("cond")?"predio":n.startsWith("rua")?"rua":"bairro"; }
+function quant(arr,q){ const a=arr.slice().sort((x,y)=>x-y); if(!a.length) return NaN; const pos=(a.length-1)*q, lo=Math.floor(pos), hi=Math.ceil(pos); return a[lo]+(a[hi]-a[lo])*(pos-lo); }
+function contaminado(x,c){ const v=+x.valor, l=lanceRef(c), a=+c.avaliacao||0; return (l>0&&Math.abs(v-l)<1)||(a>0&&Math.abs(v-a)<1); }
+function mercado(c){
+  const all=(c.comparaveis||[]).filter(x=>x&&+x.valor>0&&!x.excluido);
+  const cont=all.filter(x=>contaminado(x,c));
+  const ok=all.filter(x=>!contaminado(x,c));
+  const out={avisos:[],p25:NaN,nivel:null,n:0,total:ok.length,metodo:"",m2:NaN,min:NaN,max:NaN,teto:NaN,margem:NaN,fonte:"comparaveis"};
+  if(cont.length) out.avisos.push(cont.length+" comparável(is) com valor igual ao lance ou à avaliação (anúncio reindexado) — fora do cálculo.");
+  let g=[];
+  for(const nv of NIV){ g=ok.filter(x=>nivKey(x.nivel)===nv); if(g.length){ out.nivel=nv; break; } }
+  const area=+c.areaPrivativa||0;
+  if(g.length){
+    out.n=g.length;
+    if(area>0&&g.every(x=>+x.area>0)){
+      const m2=g.map(x=>x.valor/x.area);
+      out.m2=quant(m2,.25); out.p25=out.m2*area; out.min=Math.min(...m2)*area; out.max=Math.max(...m2)*area; out.metodo="P25 do R$/m² × área privativa";
+    } else {
+      const vs=g.map(x=>+x.valor);
+      out.p25=quant(vs,.25); out.min=Math.min(...vs); out.max=Math.max(...vs); out.metodo="P25 dos valores anunciados"; out.m2=area>0?out.p25/area:NaN;
+      if(area>0) out.avisos.push("Algum comparável está sem área: P25 calculado sobre o valor total, não sobre o R$/m².");
+    }
+    out.teto=Math.max(...g.map(x=>+x.valor));
+    { const hs=new Set(g.map(x=>{ try{ return new URL(x.link).hostname.replace(/^www\./,""); }catch(e){ return ""; } }).filter(Boolean)); if(g.length>=2&&hs.size===1) out.avisos.push("Todas as fontes são do mesmo site ("+[...hs][0]+"). Misture sites para confirmar o preço."); }
+    out.semLink=g.filter(x=>!String(x.link||"").trim()).length;
+    if(out.semLink) out.avisos.push(out.semLink+" comparável(is) sem link. O link é obrigatório para conferir o preço.");
+    if(g.length<3) out.avisos.push("Só "+g.length+" comparável(is) no nível "+NIVL[out.nivel]+". O ideal é 3 ou mais.");
+  } else if(+c.vendaP25>0){
+    out.p25=+c.vendaP25; out.fonte="garimpagem"; out.metodo="P25 informado pela garimpagem (sem comparáveis cadastrados)"; out.m2=area>0?out.p25/area:NaN;
+    out.avisos.push("Sem comparáveis cadastrados. Cadastre os links para confirmar o P25.");
+  }
+  const l=lanceRef(c);
+  if(isFinite(out.p25)&&l>0) out.margem=out.p25/l-1;
+  if(out.margem>1&&out.n<5) out.avisos.push("Margem acima de 100% com poucos comparáveis: confira se o preço não está inflado.");
+  return out;
+}
+function simOf(c){ return c&&c.simulacaoId? sims.find(s=>s.id===c.simulacaoId)||null : null; }
+const simCache=new Map();
+function simInfo(c){
+  const s=simOf(c); if(!s) return null;
+  const k=s.id+"|"+s.atualizadoEm+"|"+JSON.stringify(CFG.cartorio||0);
+  let v=simCache.get(k);
+  if(!v){ const p=simParams(s); const r=calc(p,p.lance,p.giro); v={s,p,r,roi:r.roi,max:lanceMax(p,p.giro)}; simCache.set(k,v); }
+  return v;
+}
+const DEB_Q=[["vendedor","Vendedor"],["arrematante","Arrematante"],["arrematante_10","Arrematante até 10% da avaliação"],["","Não informado"]];
+function debitoArrem(c,k){ const d=((c.debitos||{})[k])||{}; const v=+d.valor||0; if(d.quem==="arrematante") return v; if(d.quem==="arrematante_10"){ const a=+c.avaliacao||0; return a>0?Math.min(v,a*0.1):v; } return 0; }
+function debitosArrem(c){ if(c.debitos&&(c.debitos.cond||c.debitos.iptu)) return Math.round(debitoArrem(c,"cond")+debitoArrem(c,"iptu")); return +c.debitosValor||0; }
+function titulo(c){ return [c.cidade,c.bairro].filter(Boolean).join(" · ")||c.endereco||"Imóvel sem nome"; }
+function subt(c){ return [c.tipoImovel, +c.areaPrivativa? String(c.areaPrivativa).replace(".",",")+" m²":"", +c.quartos? c.quartos+"q":"", c.predio].filter(Boolean).join(" · "); }
+function statusDaColuna(col,c){ return col===0?"triado":col===1?"estudo":col===2?"juridico":col===3?"leilao":(c&&c.resultado&&c.resultado.tipo)||"leilao"; }
+
+/* =================== roteiros jurídicos =================== */
+/* k: snn = Sim/Não/Não se aplica · sn = Sim/Não · opt = opções · txt = texto · num = números · vil = preço vil calculado
+   lock: resposta que trava · alert: resposta que gera alerta */
+const M_INT="Risco de nulidade do leilão.";
+const M_USU="Arrematante não terá posse enquanto o usufrutuário viver.";
+const M_CONS="Credor ainda não é dono: leilão irregular.";
+const M_LIM="Leilão pode não acontecer ou a posse fica bloqueada.";
+const M_GRAV="Credor não intimado pode anular a arrematação.";
+const M_BEM="Penhora pode ser anulada.";
+const M_VIL="Lance abaixo de 50% (80% se incapaz) do laudo atualizado.";
+const OPT_OCUP=["Ex-mutuário","Terceiro","Locatário","Desconhecido"];
+const RE=[
+ {id:"E1",t:"Edital e condições",items:[
+  {id:"pag",q:"Formas de pagamento aceitas",k:"multi",opts:["À vista","FGTS","Financiamento","Parcelado"],pre:"formasPagamento"},
+  {id:"debitos",q:"Condomínio e IPTU atrasados (preenchidos na calculadora)",k:"info"},
+  {id:"outrasDiv",q:"O edital fala de outras dívidas além de IPTU e condomínio?",k:"snn",alert:"sim"},
+  {id:"condicional",q:"Venda condicional (sujeita a aprovação do vendedor)?",k:"snn",alert:"sim"},
+  {id:"adCorpus",q:"Venda “ad corpus” / no estado em que se encontra?",k:"snn",alert:"sim"},
+  {id:"eviccao",q:"O edital tem cláusula de evicção (garantia se o leilão for anulado)?",k:"sn",alert:"nao",ph:"O que o edital garante"}]},
+ {id:"E2",t:"Matrícula",note:"Peça a matrícula atualizada (menos de 30 dias).",items:[
+  {id:"impeditivos",q:"Há impeditivos na matrícula?",k:"sn",alert:"sim"},
+  {id:"afRegistrada",q:"A alienação fiduciária está registrada?",k:"sn",alert:"nao"},
+  {id:"consolidacao",q:"A consolidação da propriedade em nome do credor está averbada?",k:"sn",lock:"nao",motivo:M_CONS},
+  {id:"negativos",q:"Os leilões negativos estão averbados? (Caixa venda direta/licitação)",k:"snn",alert:"nao",when:c=>isCaixaDireta(c)},
+  {id:"gravame",q:"Há gravame (arresto, sequestro, usufruto, imóvel de incapaz etc.)?",k:"sn",alert:"sim",ph:"Qual?"},
+  {id:"usufruto",q:"Há usufruto vitalício sem óbito do usufrutuário confirmado?",k:"sn",lock:"sim",motivo:M_USU},
+  {id:"indisp",q:"Há indisponibilidade, penhora ou hipoteca com “regularização por conta do adquirente”?",k:"sn",alert:"sim",ph:"Custo e prazo estimados"},
+  {id:"vagaMat",q:"A(s) vaga(s) de garagem constam na matrícula?",k:"snn",alert:"nao"},
+  {id:"descBate",q:"A descrição do edital/site bate com a matrícula?",k:"sn",alert:"nao"}]},
+ {id:"E3",t:"Procedimento da Lei 9.514",note:"Só para “Banco – Lei 9.514 (1º/2º leilão)”.",when:c=>isLei9514(c),items:[
+  {id:"intMora",q:"O devedor foi intimado para purgar a mora antes da consolidação?",k:"sn",lock:"nao",motivo:M_INT},
+  {id:"notifDatas",q:"O devedor foi notificado das datas dos leilões?",k:"sn",lock:"nao",motivo:M_INT},
+  {id:"preferencia",q:"O edital informa o direito de preferência do devedor até o 2º leilão?",k:"sn",alert:"sim",alertTxt:"devedor pode recomprar"}]},
+ {id:"E4",t:"Ocupação",items:[
+  {id:"ocupado",q:"Imóvel ocupado?",k:"opt",opts:["Sim","Não","Não se sabe"],alertOpts:["Sim","Não se sabe"]},
+  {id:"perfil",q:"Perfil do ocupante",k:"opt",opts:OPT_OCUP},
+  {id:"contratoPart",q:"Existe contrato particular de compra e venda entre o devedor e um terceiro?",k:"sn",alert:"sim"},
+  {id:"locacaoAverb",q:"Caso locatário: contrato de locação averbado na matrícula?",k:"snn",alert:"sim"},
+  {id:"bensDentro",q:"Imóvel desocupado com bens dentro? (só abrir com oficial)",k:"snn",alert:"sim"}]},
+ {id:"E5",t:"Ações judiciais",items:[
+  {id:"acaoBanco",q:"O devedor tem ação contra o banco (revisional/anulatória) ou recurso/embargos sobre o imóvel?",k:"sn",alert:"sim",ph:"Nº do processo"},
+  {id:"liminar",q:"Existe liminar/decisão suspendendo o leilão ou a posse?",k:"sn",lock:"sim",motivo:M_LIM},
+  {id:"procDevedor",q:"Processos relevantes em nome do devedor que possam recair no imóvel (busca pelo CPF)?",k:"sn",alert:"sim"},
+  {id:"procConjuge",q:"Processos relevantes em nome do cônjuge (busca pelo CPF)?",k:"sn",alert:"sim"}]}
+];
+const RJ=[
+ {id:"J1",t:"Dados gerais",items:[
+  {id:"devedor",q:"Dados do devedor (nome, CPF/CNPJ)",k:"txt"},
+  {id:"advogado",q:"Advogado do devedor (ou revel?)",k:"txt"},
+  {id:"objeto",q:"O que está sendo leiloado",k:"opt",opts:["Imóvel inteiro","Fração","Direitos sobre o imóvel"],alertOpts:["Fração","Direitos sobre o imóvel"]},
+  {id:"natureza",q:"Natureza da dívida",k:"opt",opts:["Trabalhista","Fiscal","Falência","Inventário","Condomínio","Cível"]}]},
+ {id:"J2",t:"Valores e edital",items:[
+  {id:"laudo",q:"Laudo de avaliação",k:"num",nums:[["valor","Valor do laudo (R$)","money"],["data","Data do laudo","date"],["atualizado","Laudo atualizado (R$)","money"]]},
+  {id:"laudoAtual",q:"O laudo foi atualizado até a data do leilão (índices do tribunal)?",k:"sn",alert:"nao"},
+  {id:"laudoMesmo",q:"O laudo é do mesmo imóvel que vai a leilão?",k:"sn",alert:"nao"},
+  {id:"precoVil",q:"Preço vil: lance abaixo de 50% do laudo atualizado (80% se imóvel de incapaz), sem autorização do juiz para mínimo menor?",k:"vil",motivo:M_VIL},
+  {id:"parcelamento",q:"Parcelamento (25% de entrada + até 30 parcelas) permitido?",k:"snn"},
+  {id:"debitos",q:"Condomínio e IPTU atrasados (preenchidos na calculadora)",k:"info"},
+  {id:"outraDiv",q:"O edital fala de outra dívida além de IPTU e condomínio?",k:"sn",alert:"sim"},
+  {id:"divida",q:"Valor da dívida executada (comparado ao valor do imóvel)",k:"num",nums:[["divida","Dívida executada (R$)","money"]]}]},
+ {id:"J3",t:"Matrícula",note:"Peça a matrícula atualizada (menos de 30 dias).",items:[
+  {id:"impeditivos",q:"Há impeditivos na matrícula?",k:"sn",alert:"sim"},
+  {id:"gravame",q:"Há gravame (arresto, sequestro, usufruto, imóvel de incapaz etc.)?",k:"sn",alert:"sim",ph:"Qual?"},
+  {id:"usufruto",q:"Há usufruto vitalício sem óbito do usufrutuário confirmado?",k:"sn",lock:"sim",motivo:M_USU},
+  {id:"indisp",q:"Há indisponibilidade, penhora ou hipoteca com “regularização por conta do adquirente”?",k:"sn",alert:"sim",ph:"Custo e prazo estimados"},
+  {id:"vagaMat",q:"A(s) vaga(s) de garagem constam na matrícula?",k:"snn",alert:"nao"},
+  {id:"descBate",q:"A descrição do edital/site bate com a matrícula?",k:"sn",alert:"nao"},
+  {id:"indice",q:"Índice cadastral do imóvel",k:"txt"}]},
+ {id:"J4",t:"Processo",items:[
+  {id:"descPenhora",q:"A descrição do auto/termo de penhora é a mesma do edital, da matrícula e do laudo?",k:"sn",alert:"nao"},
+  {id:"retificacao",q:"Houve retificação do auto ou termo de penhora?",k:"sn",alert:"sim"},
+  {id:"garagemPenhora",q:"A garagem está na penhora? (na matrícula do imóvel, ok; outra matrícula pode não estar indo a leilão)",k:"snn",alert:"nao"},
+  {id:"penhoraLote",q:"A penhora inclui só o lote ou lote + construção?",k:"opt",opts:["Só o lote","Lote + construção"],alertOpts:["Só o lote"]},
+  {id:"penhoraObj",q:"A penhora é do imóvel ou só de direitos sobre ele?",k:"opt",opts:["Do imóvel","Só de direitos"],alertOpts:["Só de direitos"]},
+  {id:"continuidade",q:"(Direitos) A continuidade dos contratos do proprietário até o executado foi respeitada?",k:"snn",alert:"nao"},
+  {id:"saldoFid",q:"(Direitos do fiduciante) Consta o saldo do financiamento? O juiz permitiu a habilitação do credor fiduciário no produto da arrematação?",k:"snn",alert:"nao"},
+  {id:"intPenhora",q:"O réu foi intimado da penhora (art. 841 CPC, pode ser via advogado)?",k:"sn",lock:"nao",motivo:M_INT},
+  {id:"intAvaliacao",q:"O réu foi intimado/teve ciência da avaliação?",k:"sn",lock:"nao",motivo:M_INT},
+  {id:"intDatas",q:"Os executados foram intimados das datas dos leilões (carta ou advogado; edital só após esgotadas as outras vias)?",k:"sn",lock:"nao",motivo:M_INT},
+  {id:"legitimidade",q:"Executado é empresa? A pessoa que recebeu a intimação tinha legitimidade (contrato social)?",k:"snn",alert:"nao"},
+  {id:"intConjuge",q:"Coproprietários e cônjuge foram intimados?",k:"snn",lock:"nao",motivo:M_INT},
+  {id:"credores",q:"Havendo ônus/gravame na matrícula, todos os credores foram intimados (promitente comprador, credor hipotecário; recomendável os de indisponibilidade)?",k:"snn",lock:"nao",motivo:M_GRAV},
+  {id:"renuncia",q:"O advogado do devedor renunciou sem substituto? (então a intimação tem de ser pessoal)",k:"sn",alert:"sim"},
+  {id:"inventario",q:"Há inventário e o inventariante foi intimado? (Não se aplica se não houver inventário)",k:"snn",lock:"nao",motivo:M_INT},
+  {id:"outrosProc",q:"Há outros processos com ônus na matrícula? Os juízes foram oficiados do leilão?",k:"sn",alert:"sim"},
+  {id:"desconsid",q:"Houve desconsideração da PJ? Cônjuges dos sócios notificados e meação resguardada? Sócios tiveram defesa?",k:"snn"},
+  {id:"concurso",q:"Concurso de credores: créditos trabalhistas/fiscais/honorários habilitados que consumam o produto (se você responde por débitos propter rem)",k:"txt"},
+  {id:"bemFamilia",q:"Bem de família: o executado mora no imóvel e a dívida não está nas exceções da lei?",k:"sn",lock:"sim",motivo:M_BEM},
+  {id:"recurso",q:"Há recurso pendente que possa desfazer a arrematação?",k:"sn",alert:"sim",ph:"Prazo para contestar a arrematação após o leilão"}]},
+ {id:"J5",t:"Ocupação",items:[
+  {id:"ocupado",q:"Imóvel ocupado? (desocupado com bens dentro: informar ao juiz, abrir só com oficial)",k:"sn",alert:"sim"},
+  {id:"perfil",q:"Perfil do ocupante",k:"opt",opts:OPT_OCUP},
+  {id:"contratoPart",q:"Contrato particular de compra e venda com terceiro?",k:"sn",alert:"sim"},
+  {id:"usucapiao",q:"Terceiro ocupando: possibilidade de usucapião (certidões de distribuição do TJ)?",k:"sn",alert:"sim"},
+  {id:"locacaoAverb",q:"Locatário: contrato averbado na matrícula?",k:"snn",alert:"sim"}]},
+ {id:"J6",t:"Ações judiciais",note:"Devedor e cônjuge, sempre pelo CPF (atenção a nomes de solteiro/casado/divorciado).",items:[
+  {id:"procDevedor",q:"Processos relevantes em nome do devedor?",k:"sn",alert:"sim"},
+  {id:"procConjuge",q:"Processos relevantes em nome do cônjuge?",k:"sn",alert:"sim"}]},
+ {id:"J7",t:"Evicção",items:[
+  {id:"eviccao",q:"O edital tem cláusula de evicção (garantia se o leilão for anulado)?",k:"sn",alert:"nao",ph:"O que o edital garante"}]}
+];
+const roteiro=c=>c.tipoLeilao==="Judicial"?RJ:RE;
+const RESP_L={sim:"Sim",nao:"Não",na:"Não se aplica"};
+function ans(c,b,i){ return ((c.juridico||{})[b]||{})[i]||{}; }
+function precoVil(c){
+  const a=ans(c,"J2","laudo").vals||{}; const laudo=+a.atualizado||+a.valor||0;
+  const f=ans(c,"J2","precoVil"); const lance=lanceRef(c);
+  if(!(laudo>0)||!(lance>0)) return {ok:false,laudo,lance};
+  const lim=laudo*(f.incapaz?0.8:0.5);
+  return {ok:true,laudo,lance,lim,vil:lance<lim&&!f.autorizado,pct:lance/laudo};
+}
+function itemAplica(c,b,it){ return it.k!=="info"&&(!b.when||b.when(c))&&(!it.when||it.when(c)); }
+function multiResp(c,b,it){ const a=ans(c,b.id,it.id); if(Array.isArray(a.resp)) return a.resp; const pre=it.pre&&c[it.pre]; return Array.isArray(pre)?pre:[]; }
+function itemRespondido(c,b,it){
+  const a=ans(c,b.id,it.id);
+  if(it.k==="txt") return !!String(a.resp||"").trim();
+  if(it.k==="num") return Object.values(a.vals||{}).some(v=>v!==""&&v!=null&&+v!==0);
+  if(it.k==="vil") return precoVil(c).ok;
+  if(it.k==="multi") return multiResp(c,b,it).length>0;
+  return !!a.resp;
+}
+function itemTrava(c,b,it){
+  const a=ans(c,b.id,it.id);
+  if(a.excecao&&a.excecao.txt) return false;
+  if(it.k==="vil") return !!precoVil(c).vil;
+  return !!it.lock&&a.resp===it.lock;
+}
+function itemAlerta(c,b,it){
+  const a=ans(c,b.id,it.id);
+  if(it.alertOpts) return it.alertOpts.includes(a.resp);
+  if(it.id==="divida"){ const d=+(a.vals||{}).divida||0; const l=precoVil(c).laudo; return d>0&&l>0&&d<l*0.2; }
+  return !!it.alert&&a.resp===it.alert;
+}
+function jurStatus(c){
+  const R=roteiro(c); const out={blocos:[],travas:[],lockPend:[],resp:0,total:0,alertas:0};
+  for(const b of R){
+    const s={b,resp:0,total:0,travas:0,alertas:0,aplica:!b.when||b.when(c)};
+    for(const it of b.items){
+      if(!itemAplica(c,b,it)) continue;
+      s.total++; if(itemRespondido(c,b,it)) s.resp++;
+      if(itemTrava(c,b,it)){ s.travas++; out.travas.push({b:b.id,i:it.id,q:it.q,motivo:it.motivo,resp:ans(c,b.id,it.id).resp}); }
+      else if((it.lock||it.k==="vil")&&!itemRespondido(c,b,it)) out.lockPend.push({b:b.id,i:it.id,q:it.q});
+      if(itemAlerta(c,b,it)) s.alertas++;
+    }
+    s.risco=!s.resp?"":(s.travas||s.alertas>=3)?"alto":s.alertas?"médio":"baixo";
+    out.resp+=s.resp; out.total+=s.total; out.alertas+=s.alertas; out.blocos.push(s);
+  }
+  out.risco=!out.resp?"":(out.travas.length||out.alertas>=4)?"alto":out.alertas?"médio":"baixo";
+  return out;
+}
+function travasTxt(c){ return jurStatus(c).travas.map(t=>t.q+" → "+t.motivo); }
+
+/* =================== progresso e travas de avanço =================== */
+function prog1(c){
+  const dados=!!(c.cidade&&(c.endereco||c.bairro)&&+c.areaPrivativa>0&&lanceRef(c)>0);
+  const m=mercado(c); const merc=m.n>=1&&isFinite(m.p25);
+  const custos=!!simOf(c);
+  return {dados,merc,custos};
+}
+function gate(c){
+  const r=[];
+  if(c.coluna===1){
+    const m=mercado(c);
+    if(!(lanceRef(c)>0)) r.push("Informe a praça e o valor mínimo (aba Dados).");
+    if(!(m.n>=1)) r.push("Cadastre os comparáveis com link (aba Mercado).");
+    else if(m.semLink) r.push("Coloque o link de todos os comparáveis usados (aba Mercado).");
+    if(m.n>=1&&!(m.margem>=cB())) r.push("Margem bruta "+fP(m.margem)+" abaixo do corte de "+CFG.corteBruto+"%.");
+    const s=simInfo(c);
+    if(!s) r.push("Salve o cálculo de custos (aba Custos).");
+  }
+  if(c.coluna===2){
+    const j=jurStatus(c);
+    for(const t of j.travas) r.push("Trava: “"+t.q+"”. "+t.motivo);
+    for(const t of j.lockPend) r.push("Responda o item com cadeado: “"+t.q+"”.");
+    const d=c.decisao||{};
+    if(!(d.parecer==="Prosseguir"||d.parecer==="Prosseguir com ressalva")) r.push("Registre o parecer “Prosseguir” ou “Prosseguir com ressalva” (aba Decisão).");
+    if(!(+c.precoTeto>0)) r.push("Preencha o preço teto (aba Decisão).");
+  }
+  return r;
+}
+function margemBaixa(c){
+  const s=simInfo(c);
+  return (s&&isFinite(s.roi)&&s.roi<cL())?s.roi:null;
+}
+function selos(c){
+  const s=[]; const p=proxData(c);
+  if(p&&(c.coluna<=3)){ const d=daysUntil(p.data), lb=pracaLbl(c,p); s.push(d<=0?["red",lb+" hoje"+(p.hora?" "+p.hora:"")]:[d<=2?"red":d<=7?"yel":"blue",lb+" "+fDia(p.data)+(p.hora?" "+p.hora:"")]); }
+  if(!p&&c.coluna<=3&&!pracas(c).length&&/direta|compra direta/i.test(c.modalidade||"")) s.push(["blue","Venda direta · sem data"]);
+  if(c.coluna===3&&!(c.habilitacao||{}).aprovada&&p&&daysUntil(p.data)<=3) s.push(["red","Habilitar"]);
+  if(c.coluna>=1&&c.coluna<=2&&jurStatus(c).travas.length) s.push(["red","Travado"]);
+  if(c.coluna>=1&&c.coluna<=3&&margemBaixa(c)!==null) s.push(["red","Margem líq. baixa"]);
+  if(c.coluna<=1){ const m=mercado(c); if(isFinite(m.margem)&&m.margem<cB()) s.push(["gray","Abaixo do corte"]); }
+  return s;
+}
+
+/* =================== componente Calculadora (mesma ficha da Calculadora de Arremate) =================== */
+const C_MONEY=["lance","venda","escrManual","regManual","debitos","reforma","desocupacao","condominio","iptu","incremento"];
+const C_PCT=["leiloeiro","corretagem","minimo","itbi","pjAliq","oport"];
+const C_INT=["giro"];
+const C_TXT=["nome","cidade","link","tipo","cartModo","trib"];
+function calcHTML(px,opt){
+  const F=(k,label,unitL,unitR,mode,hint,cls)=>`<label class="f ${cls||""}" ${k==="pjAliq"?'data-w="fPj"':""}>${label}<div class="in">${unitL?`<span>${unitL}</span>`:""}<input id="${px}${k}" data-c="${k}" class="n" inputmode="${mode||"decimal"}">${unitR?`<span>${unitR}</span>`:""}</div>${hint?`<div class="hint">${hint}</div>`:""}</label>`;
+  return `<div class="grid ${opt.one?"one":""}">
+  <form class="card" autocomplete="off" data-c-form>
+    <div class="sec" ${opt.hideImovel?"hidden":""}>
+      <h2>Imóvel</h2>
+      <div class="fields">
+        <label class="f full">Nome<div class="in"><input id="${px}nome" data-c="nome" type="text" placeholder="Ex.: Betim · São João · Ville Bulgária"></div></label>
+        <label class="f">Cidade<div class="in"><input id="${px}cidade" data-c="cidade" type="text" placeholder="Betim"></div></label>
+        <label class="f">Modalidade<div class="in"><select id="${px}tipo" data-c="tipo"><option value="leilao">Leilão Caixa (SFI)</option><option value="direta">Venda direta / Licitação Caixa</option><option value="judicial">Leilão judicial</option></select></div></label>
+        <label class="f full">Link do anúncio<div class="in"><input id="${px}link" data-c="link" type="text" placeholder="https://venda-imoveis.caixa.gov.br/..."></div></label>
+      </div>
+    </div>
+    <div class="sec" ${opt.hideImovel?"":"hidden"}>
+      <h2>Modalidade</h2>
+      <div class="fields"><label class="f full">Tipo de cálculo<div class="in"><select id="${px}tipo2" data-c2="tipo"><option value="leilao">Leilão (5% de leiloeiro)</option><option value="direta">Venda direta / Licitação Caixa</option><option value="judicial">Leilão judicial (sem escritura)</option></select></div></label></div>
+    </div>
+    <div class="sec">
+      <h2>Compra e venda</h2>
+      <div class="fields">
+        ${F("lance","Lance","R$","")}${F("venda","Preço de venda (P25)","R$","")}
+        ${F("leiloeiro","Comissão do leiloeiro","","% lance")}${F("corretagem","Corretagem na venda","","% venda")}
+        ${F("giro","Giro de venda","","meses","numeric")}${F("minimo","Lucro mínimo","","%")}
+      </div>
+      <div class="hint" data-o="descHint"></div>
+    </div>
+    <div class="sec">
+      <h2>ITBI e cartório <small data-o="cartFonte"></small></h2>
+      <div class="fields">
+        ${F("itbi","Alíquota ITBI","","% lance","decimal","BH 3%. Confirme a da prefeitura.")}
+        <label class="f">Cartório<div class="in"><select id="${px}cartModo" data-c="cartModo"><option value="auto">Automático (tabela MG)</option><option value="manual">Manual</option></select></div></label>
+        <div class="full" data-w="cartAuto">
+          <label class="chk"><input type="checkbox" id="${px}escritura" data-c="escritura"> Cobrar escritura pública além do registro</label>
+          <div class="calc-note" data-o="cartNote"></div>
+        </div>
+        <label class="f" data-w="fEscr" hidden>Escritura<div class="in"><span>R$</span><input id="${px}escrManual" data-c="escrManual" class="n" inputmode="decimal"></div></label>
+        <label class="f" data-w="fReg" hidden>Registro<div class="in"><span>R$</span><input id="${px}regManual" data-c="regManual" class="n" inputmode="decimal"></div></label>
+      </div>
+    </div>
+    <div class="sec">
+      <h2>Despesas</h2>
+      <div class="fields">
+        ${F("debitos","Débitos a quitar","R$","","decimal","Condomínio e IPTU atrasados, despesas diversas")}
+        ${F("reforma","Reforma","R$","")}
+        ${F("desocupacao","Desocupação","R$","")}
+        ${F("condominio","Condomínio","R$","/mês","decimal","Conta desde o 1º mês")}
+        ${F("iptu","IPTU","R$","/mês")}
+      </div>
+      <div data-o="condAlert"></div>
+    </div>
+    <div class="sec">
+      <h2>Imposto e custo de oportunidade</h2>
+      <div class="fields">
+        <label class="f">Tributação<div class="in"><select id="${px}trib" data-c="trib"><option value="pf">Pessoa física (ganho de capital)</option><option value="pj">Pessoa jurídica (% sobre a venda)</option><option value="isento">Sem imposto</option></select></div></label>
+        ${F("pjAliq","Alíquota PJ","","% venda","decimal","Lucro presumido: 6,73%")}
+        ${F("oport","Custo de oportunidade","","% a.a.","decimal","0 = não considera. Ex.: CDI líquido")}
+        ${F("incremento","Incremento da tabela de lances","R$","")}
+      </div>
+    </div>
+  </form>
+  <div class="side">
+    <section class="card"><div class="verdict">
+      <div class="vhead"><div class="lbl">Resultado no giro de <span data-o="giroLbl"></span> meses</div><span class="badge" data-o="badge">—</span></div>
+      <div class="kpis">
+        <div class="kpi"><span class="lbl">Lucro (ROI)</span><b class="big" data-o="kRoi">—</b></div>
+        <div class="kpi"><span class="lbl">Resultado</span><b data-o="kRes">—</b></div>
+        <div class="kpi"><span class="lbl">Taxa mensal</span><b data-o="kMes">—</b></div>
+        <div class="kpi"><span class="lbl">Custo até venda</span><b data-o="kCusto">—</b></div>
+      </div>
+      <div class="maxbid"><span>Lance máximo para <span data-o="mbMin"></span>:</span><b data-o="kMax">—</b><span class="muted" data-o="kMaxGap"></span></div>
+    </div></section>
+    <section class="card"><div class="sec"><h2>Detalhamento por giro</h2></div><div class="tw"><table data-o="tDet"></table></div><div class="foot">ROI = resultado ÷ custo até venda. Corretagem e IR saem da receita de venda. IR de PF: 15% sobre venda − corretagem − lance − leiloeiro − ITBI − cartório − reforma.</div></section>
+    <section class="card"><div class="sec"><h2>Tabela de lances</h2></div><div class="tw"><table data-o="tLances"></table></div>${LEG_LANCES}</section>
+    <div data-slot="side"></div>
+  </div></div>`;
+}
+const LEG_LANCES=`<div class="legend"><span><i style="background:var(--ok-soft)"></i>atinge o lucro mínimo</span><span><i style="background:var(--warn-soft)"></i>positivo, abaixo do mínimo</span><span><i style="background:var(--bad-soft)"></i>prejuízo</span></div>`;
+  function giroSet(g){ return Array.from(new Set([3,6,9,12,18,24,g])).sort((a,b)=>a-b); }
+function detHTML(p){
+  const gs=giroSet(p.giro), rs=gs.map(g=>calc(p,p.lance,g));
+  const rows=[["Receita de venda","venda",1],["Corretagem","corr",-1],["Lance","lance",-1],["Leiloeiro","leil",-1],["ITBI","itbi",-1],["Escritura","esc",-1],["Registro","reg",-1],["Débitos","debitos",-1],["Reforma","reforma",-1],["Desocupação","desoc",-1],["Condomínio","cond",-1],["IPTU","iptu",-1],["Imposto de renda","ir",-1],["Custo de oportunidade","oport",-1]];
+  let h="<thead><tr><th>Giro</th>"+gs.map(g=>`<th class="${g===p.giro?"hl":""}">${g} meses</th>`).join("")+"</tr></thead><tbody>";
+  for(const [lab,k,s] of rows){ if(rs.every(r=>!r[k])) continue; h+=`<tr><td>${lab}</td>`+rs.map((r,i)=>`<td class="${gs[i]===p.giro?"hl":""}">${fR(s*r[k]||0)}</td>`).join("")+"</tr>"; }
+  h+=`<tr class="tot"><td>Custo até venda</td>`+rs.map((r,i)=>`<td class="${gs[i]===p.giro?"hl":""}">${fR(-r.custo)}</td>`).join("")+"</tr>";
+  h+=`<tr class="tot"><td>Resultado</td>`+rs.map((r,i)=>`<td class="${gs[i]===p.giro?"hl":""}">${fR(r.res)}</td>`).join("")+"</tr>";
+  h+=`<tr><td>Lucro (ROI)</td>`+rs.map(r=>`<td class="c-${cls(r.roi,p.minimo/100)}">${fP(r.roi)}</td>`).join("")+"</tr>";
+  h+=`<tr><td>Taxa mensal</td>`+rs.map((r,i)=>`<td class="${gs[i]===p.giro?"hl":""}">${isFinite(r.mes)?(r.mes*100).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%":"—"}</td>`).join("")+"</tr></tbody>";
+  return h;
+}
+function lancesHTML(p){
+  const inc=p.incremento>0?p.incremento:Math.max(1000,Math.round(p.lance*0.05/1000)*1000);
+  const gs=Array.from(new Set([3,6,12,p.giro])).sort((a,b)=>a-b), min=p.minimo/100;
+  let h="<thead><tr><th>Lance</th>"+gs.map(g=>`<th class="${g===p.giro?"hl":""}">${g} meses</th>`).join("")+"</tr></thead><tbody>";
+  let lastOk=-1; const rows=[];
+  for(let i=0;i<20;i++){ const l=p.lance+i*inc; const rs=gs.map(g=>calc(p,l,g)); rows.push([l,rs]); if(rs[gs.indexOf(p.giro)].roi>=min) lastOk=i; }
+  rows.forEach(([l,rs],i)=>{ h+=`<tr class="${i===lastOk?"maxrow":""}"><td>${fR(l)}${i===lastOk?" ◂ teto":""}</td>`+rs.map(r=>`<td class="c-${cls(r.roi,min)}">${fP(r.roi)} · ${fK(r.res)}</td>`).join("")+"</tr>"; });
+  return h+"</tbody>";
+}
+function Calc(root,px,opt){
+  opt=opt||{};
+  root.innerHTML=calcHTML(px,opt);
+  const C=k=>root.querySelector(`[data-c="${k}"]`), O=k=>root.querySelector(`[data-o="${k}"]`), W=k=>root.querySelector(`[data-w="${k}"]`);
+  const api={current:null,onChange:opt.onChange||null};
+  function syncVis(){ const man=C("cartModo").value==="manual"; W("cartAuto").hidden=man; W("fEscr").hidden=!man; W("fReg").hidden=!man; W("fPj").hidden=C("trib").value!=="pj"; }
+  api.set=function(p){
+    p=Object.assign({},DEFAULTS,p);
+    for(const k of C_TXT) C(k).value=p[k]??DEFAULTS[k];
+    const t2=root.querySelector('[data-c2="tipo"]'); if(t2) t2.value=p.tipo;
+    for(const k of C_MONEY) C(k).value=n2.format(+p[k]||0);
+    for(const k of C_PCT) C(k).value=String(p[k]??DEFAULTS[k]).replace(".",",");
+    for(const k of C_INT) C(k).value=String(p[k]??DEFAULTS[k]);
+    C("escritura").checked=p.escritura!==false;
+    syncVis(); api.recalc(true);
+  };
+  api.get=function(){
+    const p={};
+    for(const k of C_TXT) p[k]=C(k).value.trim();
+    for(const k of C_MONEY.concat(C_PCT)) p[k]=parseNum(C(k).value);
+    for(const k of C_INT) p[k]=Math.max(0,Math.round(parseNum(C(k).value)));
+    p.escritura=C("escritura").checked;
+    if(p.giro<1) p.giro=1;
+    return p;
+  };
+  api.recalc=function(silent){
+    const p=api.get(); api.current=p;
+    const r=calc(p,p.lance,p.giro), min=p.minimo/100;
+    O("giroLbl").textContent=p.giro; O("mbMin").textContent=fP(min).replace(",0%","%");
+    const ready=p.lance>0&&p.venda>0, c=ready?cls(r.roi,min):"";
+    const b=O("badge"); b.className="badge "+c; b.textContent=!ready?"Preencha lance e venda":c==="ok"?"Aprovado":c==="warn"?"Abaixo do mínimo":"Prejuízo";
+    const rc=!ready?"":r.roi>=0?"pos":"neg";
+    O("kRoi").textContent=ready?fP(r.roi):"—"; O("kRoi").className="big "+rc;
+    O("kRes").textContent=ready?fR(r.res):"—"; O("kRes").className=rc;
+    O("kMes").textContent=ready&&isFinite(r.mes)?(r.mes*100).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%":"—";
+    O("kCusto").textContent=ready?fR(r.custo):"—";
+    const mx=ready?lanceMax(p,p.giro):NaN; api.max=mx; api.roi=ready?r.roi:NaN;
+    O("kMax").textContent=isFinite(mx)?fR(mx):"—";
+    O("kMaxGap").textContent=isFinite(mx)?(mx>=p.lance?"folga de "+fR(mx-p.lance)+" sobre o lance":"lance atual passa "+fR(p.lance-mx)+" do teto"):(ready?"nenhum lance atinge o mínimo":"");
+    O("cartFonte").textContent=!(CFG.cartorio&&CFG.cartorio.length)?"tabela TJMG 2026":"tabela dos Padrões";
+    O("cartNote").textContent=p.cartModo==="manual"?"":"Registro "+fR(cartMG(p.lance))+(p.escritura?" + escritura "+fR(cartMG(p.lance)):"")+" sobre "+fR(p.lance);
+    O("descHint").textContent=p.venda>0&&p.lance>0?"Deságio do lance sobre a venda: "+fP(1-p.lance/p.venda)+" · retorno bruto "+fP(p.venda/p.lance-1):"";
+    const ca=O("condAlert"); const pc=p.venda>0?p.condominio/p.venda:0;
+    ca.innerHTML=pc>0.002?`<div class="alert yel" style="margin-top:10px">Condomínio de ${fR(p.condominio)}/mês é ${(pc*100).toLocaleString("pt-BR",{maximumFractionDigits:2})}% do valor do imóvel ao mês (acima de 0,2%). Pesa na revenda.</div>`:"";
+    renderDet(p); renderLances(p);
+    if(!silent&&api.onChange) api.onChange(p);
+  };
+  function renderDet(p){ O("tDet").innerHTML=detHTML(p); }
+  function renderLances(p){ O("tLances").innerHTML=lancesHTML(p); }
+  root.querySelectorAll("[data-ctab]").forEach(b=>b.addEventListener("click",()=>{
+    root.querySelectorAll("[data-ctab]").forEach(x=>x.setAttribute("aria-selected",String(x===b)));
+    root.querySelectorAll("[data-cpane]").forEach(x=>x.hidden=x.dataset.cpane!==b.dataset.ctab);
+  }));
+  const form=root.querySelector("[data-c-form]");
+  form.addEventListener("input",e=>{ const k=e.target.dataset.c; if(k==="cartModo"||k==="trib") syncVis(); if(e.target.dataset.c2) return; api.recalc(); });
+  form.addEventListener("change",e=>{
+    const k=e.target.dataset.c||e.target.dataset.c2;
+    if(k==="tipo"){ const t=e.target.value; C("tipo").value=t; const t2=root.querySelector('[data-c2="tipo"]'); if(t2) t2.value=t; C("leiloeiro").value=t==="direta"?"0":"5"; C("escritura").checked=t!=="judicial"; api.recalc(); }
+  });
+  form.addEventListener("focusout",e=>{ const k=e.target.dataset.c; if(C_MONEY.includes(k)) e.target.value=n2.format(parseNum(e.target.value)); });
+  form.addEventListener("submit",e=>e.preventDefault());
+  api.slot=root.querySelector('[data-slot="side"]');
+  return api;
+}
+/* parâmetros iniciais da calculadora a partir do card */
+function calcDoCard(c){
+  const m=mercado(c);
+  const tipo=c.tipoLeilao==="Judicial"?"judicial":isCaixaDireta(c)?"direta":"leilao";
+  const leil=tipo==="direta"?(/licita/i.test(c.modalidade||"")&&c.leiloeiro?5:0):5;
+  const comps=(c.comparaveis||[]).filter(x=>x&&!x.excluido&&(!m.nivel||nivKey(x.nivel)===m.nivel));
+  const avg=k=>{ const v=comps.map(x=>+x[k]||0).filter(v=>v>0); return v.length? Math.round(v.reduce((a,b)=>a+b,0)/v.length) : 0; };
+  return Object.assign(defaultsCfg(),{
+    nome:titulo(c)+(c.predio?" · "+c.predio:""), cidade:c.cidade||"", link:c.linkAnuncio||"", tipo,
+    lance:lanceRef(c), venda:isFinite(m.p25)?Math.round(m.p25):0, leiloeiro:leil, itbi:itbiDe(c.cidade),
+    escritura:tipo!=="judicial", debitos:debitosArrem(c), desocupacao:0,
+    condominio:+c.condominioMes||avg("condominio"), iptu:+c.iptuMes||avg("iptu"),
+    incremento:Math.max(1000,Math.round(lanceRef(c)*0.05/1000)*1000)||5000
+  });
+}
+
+/* =================== quadro =================== */
+const COLS=[
+  {n:0,t:"Imóveis triados",s:"Triados",rule:()=>"Da garimpagem, só margem bruta ≥ "+CFG.corteBruto+"% · escolha o que estudar"},
+  {n:1,t:"Imóveis em estudo",s:"Estudo",rule:()=>"Avança com margem bruta ≥ "+CFG.corteBruto+"% (alerta se ROI líquido < "+CFG.corteLiquido+"%)"},
+  {n:2,t:"Análise jurídica e decisão",s:"Jurídico",rule:()=>"Avança sem travas, com parecer e preço teto"},
+  {n:3,t:"Leilão",s:"Leilão",rule:()=>"Habilitação obrigatória · sai pelo resultado"},
+  {n:4,t:"Resultado",s:"Resultado",rule:()=>"Arrematado · Suspenso · não arrematado vai para o Histórico"}];
+const colLbl=k=>k.n===0?k.t:k.n+". "+k.t;
+const colDe=n=>COLS.find(k=>k.n===n)||COLS[1];
+let mcol=1;
+try{ mcol=+localStorage.getItem("mcol")||1; }catch(e){}
+function ativos(){ return [...cards.values()].filter(c=>!["descartado","nao_arrematado","encerrado"].includes(c.status)); }
+function filtroBusca(list){ const q=norm($("#q").value); if(!q) return list; return list.filter(c=>norm([c.cidade,c.bairro,c.endereco,c.predio,c.modalidade,c.tipoImovel,c.id].join(" ")).includes(q)); }
+function ordemPraca(a,b){ const pa=proxData(a), pb=proxData(b); return (pa?pa.data:"9999").localeCompare(pb?pb.data:"9999"); }
+function tileNum(c){
+  if(c.coluna<=1){ const m=mercado(c); const v=m.margem; return `<span class="lbl">Margem bruta</span><b class="${!isFinite(v)?"":v>=cB()?"pos":v>=0?"wrn":"neg"}">${fP(v)}</b>`; }
+  if(c.coluna===2){ const s=simInfo(c); const v=s?s.roi:NaN; return `<span class="lbl">ROI líquido</span><b class="${!isFinite(v)?"":v>=cL()?"pos":v>=0?"wrn":"neg"}">${fP(v)}</b>`; }
+  if(c.coluna===3){ const t=+c.precoTeto||0, l=lanceRef(c); return `<span class="lbl">Teto × mínimo</span><span class="small"><b class="${t>=l&&t>0?"pos":"neg"}" style="font-size:15px">${fK(t)}</b><br><span class="muted">mín. ${fK(l)}</span></span>`; }
+  const r=c.resultado||{};
+  if(c.status==="arrematado") return `<span class="lbl">Arrematado</span><b class="pos">${fK(+r.valor)}</b>`;
+  if(c.status==="nao_arrematado") return `<span class="lbl">Lance vencedor</span><b>${fK(+r.vencedor)}</b>`;
+  return `<span class="lbl">Suspenso</span><span class="small muted">${esc(r.motivo||"aguardando nova data")}</span>`;
+}
+const ICO_CASA='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>';
+function tileFoto(c){
+  const f=(c.fotos||[])[0], u=(c.fotosUrls||[])[0];
+  const src=f&&f.id?"/_blob/"+f.id:safeUrl(u);
+  const vazio=`${ICO_CASA}<span class="nf">sem foto</span>`;
+  if(!src) return `<div class="ph">${vazio}</div>`;
+  return `<div class="ph"><img src="${esc(src)}" alt="" loading="lazy" decoding="async" data-tfoto="1"></div>`;
+}
+document.addEventListener("error",e=>{ const im=e.target; if(im&&im.tagName==="IMG"&&im.dataset.tfoto){ const ph=im.parentNode; if(ph) ph.innerHTML=ICO_CASA+'<span class="nf">sem foto</span>'; } },true);
+function tileHTML(c){
+  const p=proxData(c); let progress="";
+  if(c.coluna===1){ const g=prog1(c); progress=`<div class="prog"><span class="${g.dados?"y":""}">Dados ${g.dados?"✓":"·"}</span><span class="${g.merc?"y":""}">Mercado ${g.merc?"✓":"·"}</span><span class="${g.custos?"y":""}">Custos ${g.custos?"✓":"·"}</span></div>`; }
+  if(c.coluna===2){ const j=jurStatus(c); progress=`<div class="prog"><span>Jurídico ${j.resp}/${j.total}</span>${j.risco?`<span>Risco ${j.risco}</span>`:""}${(c.decisao||{}).parecer?`<span class="y">${esc(c.decisao.parecer)}</span>`:""}</div>`; }
+  if(c.coluna===3){ const h=c.habilitacao||{}; progress=`<div class="prog"><span class="${h.aprovada?"y":""}">Habilitação ${h.aprovada?"✓ aprovada":"pendente"}</span></div>`; }
+  const sel=selos(c).map(([k,t])=>`<span class="selo ${k}">${esc(t)}</span>`).join("");
+  const praca=c.coluna===4?((c.resultado||{}).data?"resultado em "+fD(c.resultado.data):"resultado registrado"):p?pracaLbl(c,p)+" "+quando(p.data):"sem praça futura";
+  return `<div class="tilew"><button type="button" class="tile" data-open="${esc(c.id)}">
+    ${tileFoto(c)}
+    <div class="top"><span class="mod">${esc(c.tipoLeilao||"")}${c.modalidade?" · "+esc(c.modalidade):""}</span>${sel}</div>
+    <div class="tt">${esc(titulo(c))}</div>
+    <div class="sub">${esc(subt(c)||c.endereco||"")}</div>
+    <div class="big">${tileNum(c)}</div>
+    ${progress}
+    <div class="foot"><span>${esc(praca)}</span><span>${esc(c.origem||"")}</span></div>
+  </button><button type="button" class="tmenu" data-menu="${esc(c.id)}" aria-label="Opções do imóvel" aria-haspopup="menu" aria-expanded="false">⋯</button></div>`;
+}
+function renderBoard(){
+  const list=filtroBusca(ativos());
+  $("#cutInfo").innerHTML=`Corte: <b>${CFG.corteBruto}%</b> margem bruta · <b>${CFG.corteLiquido}%</b> ROI líquido · giro ${CFG.giro} meses`;
+  const by={0:[],1:[],2:[],3:[],4:[]};
+  for(const c of list){ const k=[0,1,2,3,4].includes(+c.coluna)?+c.coluna:1; by[k].push(c); }
+  by[0].sort(ordemPraca); by[1].sort(ordemPraca); by[2].sort(ordemPraca); by[3].sort(ordemPraca);
+  by[4].sort((a,b)=>String((b.resultado||{}).data||"").localeCompare(String((a.resultado||{}).data||"")));
+  $("#mcols").innerHTML=COLS.map(k=>`<button type="button" data-mcol="${k.n}" aria-pressed="${k.n===mcol}">${k.s} (${by[k.n].length})</button>`).join("");
+  const emptyTxt={0:db?"Nenhum imóvel triado. Os 🟢 da garimpagem de segunda entram aqui sozinhos. Abra um card e escolha “Estudar a fundo” ou “Descartar”; se a última praça passar, ele vai sozinho para o Histórico.":"Abra esta página pelo link do Claude para carregar o quadro.",1:"Nenhum imóvel em estudo. Escolha um dos triados ou use “+ Novo imóvel”.",2:"Nada em análise jurídica.",3:"Nenhum leilão agendado.",4:"Nenhum resultado registrado."};
+  $("#board").innerHTML=COLS.map(k=>`<section class="col ${k.n===mcol?"on":""} ${k.n===0?"tri":""}"><div class="col-h"><div class="t"><h2>${esc(colLbl(k))}</h2><span class="n">${by[k.n].length}</span></div><div class="rule">${esc(k.rule())}</div></div>
+    <div class="col-b">${by[k.n].map(tileHTML).join("")||`<div class="col-empty">${emptyTxt[k.n]}</div>`}</div></section>`).join("");
+  $("#ctOp").textContent=ativos().length||"";
+  $("#ctDe").textContent=[...cards.values()].filter(c=>c.status==="descartado").length||"";
+  $("#ctHi").textContent=(hist.length+[...cards.values()].filter(c=>["arrematado","nao_arrematado","suspenso","encerrado"].includes(c.status)).length)||"";
+}
+$("#board").addEventListener("click",e=>{ const m=e.target.closest("[data-menu]"); if(m){ showMenu(m,m.dataset.menu,false); return; } const t=e.target.closest("[data-open]"); if(t) openCard(t.dataset.open); });
+$("#mcols").addEventListener("click",e=>{ const b=e.target.closest("[data-mcol]"); if(!b) return; mcol=+b.dataset.mcol; try{localStorage.setItem("mcol",mcol);}catch(_){} renderBoard(); });
+$("#q").addEventListener("input",()=>renderBoard());
+$("#btnNovo").addEventListener("click",async()=>{
+  if(!db){ showBanner("Abra esta página pelo link do Claude para cadastrar imóveis."); return; }
+  const id="m-"+rid(), ts=new Date().toISOString();
+  const data={coluna:1,status:"estudo",tipoLeilao:"Extrajudicial",modalidade:"Caixa – Leilão SFI",pracas:[{data:"",hora:"",valor:0}],comparaveis:[],origem:"Manual",criadoEm:ts,atualizadoEm:ts,atualizadoPor:myId,criadoPor:myId,logx:logPatch(["Cadastrou o imóvel"],ts,myId)};
+  try{ await db.collection("cards").doc(id).set(data); cards.set(id,Object.assign({id},data)); openCard(id,"dados"); }
+  catch(err){ showBanner(err&&err.code==="quota_exceeded"?"O banco de dados está cheio. Exclua cards descartados antigos.":"Não foi possível criar o imóvel. Verifique sua permissão de edição nesta página.",true); }
+});
+function showBanner(t,bad){ const b=$("#banner"); b.textContent=t; b.className="banner"+(bad?" bad":""); b.hidden=!t; }
+
+/* =================== painel do imóvel =================== */
+const LBL={tipoLeilao:"tipo de leilão",modalidade:"modalidade",credor:"credor",processo:"processo",vara:"vara",comarca:"comarca",leiloeiro:"leiloeiro",leiloeiroSite:"site do leiloeiro",pracas:"praças",linkAnuncio:"link do anúncio",linkLeilaoImovel:"link Leilão Imóvel",avaliacao:"avaliação",endereco:"endereço",cidade:"cidade",bairro:"bairro",predio:"prédio",cep:"CEP",tipoImovel:"tipo do imóvel",areaPrivativa:"área privativa",areaTotal:"área total",quartos:"quartos",vagas:"vagas",vagaNaMatricula:"vaga na matrícula",matricula:"matrícula",cartorio:"cartório",inscricao:"inscrição imobiliária",situacao:"situação",descricao:"descrição",observacoes:"observações",comparaveis:"fontes/comparáveis",pontos:"pontos de atenção",liquidez:"liquidez",liquidezObs:"liquidez",relatoCorretores:"relato de corretores",debitosRegra:"regra de débitos",debitosValor:"débitos",condominioMes:"condomínio",iptuMes:"IPTU",juridico:"jurídico",decisao:"decisão",precoTeto:"preço teto",habilitacao:"habilitação",resultado:"resultado",fotos:"fotos",arquivos:"arquivos"};
+const TABS=[["dados","Dados"],["mercado","Mercado"],["custos","Custos"],["juridico","Jurídico"],["decisao","Decisão"],["leilao","Leilão"],["resultado","Resultado"],["notas","Arquivos e notas"]];
+let D=null;
+function openCard(id,tab){
+  const c=cards.get(id); if(!c) return;
+  if(D&&D.id!==id) closeCard();
+  const defTab={0:"dados",1:"dados",2:"juridico",3:"leilao",4:"resultado"}[c.coluna]||"dados";
+  D={id,work:clone(c),dirty:new Set(),logs:[],tab:tab||defTab,timer:null,chain:Promise.resolve(),myTs:new Set(),open:new Set(),msg:{},desc:false,stale:false};
+  $("#drawerRoot").innerHTML=`<div class="shade" data-act="close"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Imóvel"><header class="dh"><div id="dh"></div><div id="dtabs"></div></header><div class="db" id="dbody"></div><footer class="df" id="dfoot"></footer></aside><input type="file" id="fileIn" hidden multiple>`;
+  const dr=$(".drawer");
+  dr.addEventListener("input",onDrawerInput);
+  dr.addEventListener("change",onDrawerChange);
+  dr.addEventListener("focusout",e=>{ const el=e.target; if(el.dataset&&el.dataset.t==="money") el.value=fMoneyIn(parseNum(el.value)); setTimeout(()=>{ if(D&&D.stale&&!drawerFocused()){ D.stale=false; renderDrawer(); } },0); });
+  $("#fileIn").addEventListener("change",onFiles);
+  renderDrawer();
+  try{ history.replaceState(null,"","#"+view()); }catch(_){}
+}
+function closeCard(){ if(!D) return; flush(); D=null; $("#drawerRoot").innerHTML=""; }
+/* sair da página, trocar de app ou fechar a aba: salva na hora, sem esperar a pausa */
+function salvarAgora(){ if(D&&(D.dirty.size||D.logs.length)) flush(); }
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") salvarAgora(); });
+window.addEventListener("pagehide",salvarAgora);
+document.addEventListener("keydown",e=>{ if(e.key!=="Escape") return; if($(".pop")){ closeMenu(); return; } if(D&&!$("#dlgRoot").innerHTML) closeCard(); });
+function setSave(t){ const el=$("#saveSt"); if(el) el.textContent=t; }
+function schedule(){ clearTimeout(D.timer); setSave("Alterações não salvas"); const d=D; D.timer=setTimeout(()=>{ if(D===d) flush(); },900); }
+function edit(path,v,logTxt){
+  /* objeto trocado por inteiro: as chaves que sumiram vão como null, senão o banco as mantém */
+  const prev=getPath(D.work,path);
+  if(isObj(v)&&isObj(prev)){ v=Object.assign({},v); for(const k in prev) if(!(k in v)) v[k]=null; }
+  setPath(D.work,path,v); D.dirty.add(path); if(logTxt) D.logs.push(logTxt); schedule(); refreshDerived();
+}
+function flush(){
+  if(!D||!db) return Promise.resolve();
+  clearTimeout(D.timer);
+  if(!D.dirty.size&&!D.logs.length) return D.chain;
+  const d=D, w=d.work, paths=[...d.dirty]; d.dirty.clear();
+  const patch={}, keys=new Set();
+  for(const p of paths){ const cut=patchPath(w,p); keys.add(cut.split(".")[0]); setPath(patch,cut,clone(getPath(w,cut))??null); }
+  const ts=new Date().toISOString();
+  const entries=d.logs.splice(0);
+  const ed=[...new Set([...keys].filter(k=>LBL[k]&&!(entries.length&&["juridico","decisao","resultado"].includes(k))).map(k=>LBL[k]))];
+  if(ed.length) entries.push("Editou "+ed.join(", "));
+  const m=mercado(w); patch.vendaP25=isFinite(m.p25)?Math.round(m.p25):(w.vendaP25??null); patch.margemBruta=isFinite(m.margem)?+m.margem.toFixed(4):null; patch.nivelComparavel=m.nivel?NIVL[m.nivel]:(w.nivelComparavel??null);
+  const s=simInfo(w); if(s){ patch.roiLiquido=isFinite(s.roi)?+s.roi.toFixed(4):null; patch.lanceMaximo=isFinite(s.max)?s.max:null; }
+  patch.travas=travasTxt(w); patch.atualizadoEm=ts; patch.atualizadoPor=myId;
+  if(entries.length){ const lp=logPatch(entries,ts,myId); w.logx=Object.assign({},w.logx,lp); patch.logx=Object.assign({},patch.logx,lp); }
+  Object.assign(w,patch); d.myTs.add(ts);
+  setSave("Salvando…");
+  d.chain=d.chain.then(()=>db.collection("cards").doc(d.id).update(patch)).then(()=>{ if(D===d&&!d.dirty.size) setSave("Salvo"); }).catch(e=>{ if(D===d) setSave(e&&e.code==="invalid_argument"?"Sem permissão para salvar":e&&e.code==="quota_exceeded"?"Banco de dados cheio":"Não foi possível salvar. Tente de novo."); });
+  return d.chain;
+}
+function drawerFocused(){ const a=document.activeElement; return !!(a&&a.closest&&a.closest(".drawer")&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)); }
+/* outra pessoa salvou: junta a versão nova com o que ainda não foi salvo aqui */
+function syncDrawerFromRemote(c){
+  if(!D||c.id!==D.id) return;
+  if(D.myTs.has(c.atualizadoEm)) return;
+  const w=clone(c); for(const p of D.dirty) setPath(w,p,clone(getPath(D.work,p)));
+  D.work=w;
+  if(drawerFocused()){ D.stale=true; refreshDerived(); } else renderDrawer();
+}
+function renderDrawer(){ renderHead(); renderTab(); renderFoot(); }
+function renderHead(){
+  const c=D.work, j=jurStatus(c);
+  const ok=`<span class="bd ok">✓</span>`, g1=prog1(c), dc=c.decisao||{}, nArq=(c.arquivos||[]).length+cmtsOf(c).length;
+  const bd={dados:g1.dados?ok:"",mercado:g1.merc?ok:"",custos:g1.custos?ok:"",juridico:j.travas.length?`<span class="bd">${j.travas.length} trava${j.travas.length>1?"s":""}</span>`:(j.total&&j.resp===j.total?ok:""),decisao:(dc.parecer&&+c.precoTeto>0)?ok:"",leilao:(c.habilitacao||{}).aprovada?ok:"",resultado:c.coluna===4&&(c.resultado||{}).tipo?ok:"",notas:nArq?`<span class="bd ok">${nArq}</span>`:""};
+  $("#dh").innerHTML=`<div class="row1"><div style="min-width:0;display:grid;gap:2px"><h1>${esc(titulo(c))}</h1><div class="meta">${esc([c.tipoLeilao,c.modalidade,subt(c)].filter(Boolean).join(" · "))}</div></div><div class="bar"><span class="save-state" id="saveSt"></span><button type="button" class="sm" data-act="menu" aria-label="Opções do imóvel" aria-haspopup="menu">⋯</button><button type="button" class="sm" data-act="close" aria-label="Fechar">Fechar</button></div></div>
+  ${c.status==="encerrado"?`<div class="alert gray"><b>Prazo encerrado</b> · a última praça passou e o imóvel foi para o Histórico${c.coluna===3?". Se vocês deram lance, registre o resultado na aba Resultado.":"."}</div>`:""}
+  ${c.status==="nao_arrematado"?`<div class="alert gray"><b>Não arrematado</b> · está no Histórico.</div>`:""}
+  ${c.status==="descartado"?`<div class="alert gray"><b>Descartado</b> · motivo: ${esc(c.motivoDescarte||"—")}${c.motivoTexto?" — "+esc(c.motivoTexto):""}</div>`:""}
+  ${selos(c).length?`<div class="chips">${selos(c).map(([k,t])=>`<span class="selo ${k}">${esc(t)}</span>`).join("")}</div>`:""}
+`;
+  const FASE={0:["dados","mercado"],1:["dados","mercado","custos"],2:["juridico","decisao"],3:["leilao","resultado"],4:["resultado"]}, fase=c.status==="descartado"?[]:(FASE[c.coluna]||[]);
+  const feito={dados:g1.dados,mercado:g1.merc,custos:g1.custos,juridico:!!(j.total&&j.resp===j.total&&!j.travas.length),decisao:!!(dc.parecer&&+c.precoTeto>0),leilao:!!(c.habilitacao||{}).aprovada,resultado:!!(c.coluna===4&&(c.resultado||{}).tipo)};
+  const pend=fase.filter(k=>!feito[k]), nomeT=k=>(TABS.find(t=>t[0]===k)||[0,k])[1];
+  const leg=fase.length?`<div class="fase-leg">Fase <b>${esc(colLbl(colDe(c.coluna)))}</b>: ${pend.length?`preencha <b>${esc(pend.map(nomeT).join(", "))}</b> (em destaque)`:`tudo preenchido nesta fase`}</div>`:"";
+  $("#dtabs").innerHTML=leg+`<div class="dtabs" role="tablist">${TABS.map(([k,t])=>{ const na=fase.includes(k), cl=na?(feito[k]?"fase ok":"fase pend"):"fora"; const mk=na&&!feito[k]?`<span class="dot" aria-hidden="true"></span>`:""; return `<button type="button" role="tab" class="${cl}" data-act="tab:${k}" aria-selected="${D.tab===k}">${mk}${t}${bd[k]||""}</button>`; }).join("")}</div>`;
+}
+function refreshDerived(){
+  if(!D) return;
+  const keepTabs=$(".dtabs"); const sl=keepTabs?keepTabs.scrollLeft:0;
+  const ss=$("#saveSt")?$("#saveSt").textContent:"";
+  renderHead(); setSave(ss); const nt=$(".dtabs"); if(nt) nt.scrollLeft=sl;
+  renderFoot();
+  const live=$("#mkSum"); if(live) live.innerHTML=mercadoResumo(D.work);
+  $$("[data-cm2]").forEach(el=>{ const i=+el.dataset.cm2; const x=(D.work.comparaveis||[])[i]||{}; el.textContent=+x.valor>0&&+x.area>0?fR(x.valor/x.area)+"/m²":""; });
+  $$("[data-pc]").forEach(el=>{ const i=+el.dataset.pc; const p=(D.work.pracas||[])[i]||{}; el.textContent=p.data?quando(p.data):""; });
+  const ds=$("#decSum"); if(ds) ds.innerHTML=decisaoResumo(D.work);
+}
+function renderTab(){
+  const body=$("#dbody"); const st=body.scrollTop;
+  const fn={dados:tabDados,mercado:tabMercado,custos:tabCustos,juridico:tabJuridico,decisao:tabDecisao,leilao:tabLeilao,resultado:tabResultado,notas:tabNotas}[D.tab];
+  body.innerHTML=fn(D.work);
+  resolveNames(collectIds(D.work));
+  body.scrollTop=st;
+}
+/* campos */
+function val(path){ const v=getPath(D.work,path); return v==null?"":v; }
+function fx(path,label,o){
+  o=o||{}; const t=o.t||"text"; const v=val(path); const id="f-"+path.replace(/\./g,"-");
+  let input;
+  if(t==="sel") input=`<select id="${id}" data-f="${path}" data-t="sel"${o.rr?" data-rr":""}>${(o.opts||[]).map(x=>{ const [vv,ll]=Array.isArray(x)?x:[x,x]; return `<option value="${esc(vv)}"${String(v)===String(vv)?" selected":""}>${esc(ll)}</option>`; }).join("")}</select>`;
+  else if(t==="area") input=`<textarea id="${id}" data-f="${path}" data-t="text" placeholder="${esc(o.ph||"")}">${esc(v)}</textarea>`;
+  else { const isN=t==="money"||t==="num"||t==="int"; const shown=t==="money"?fMoneyIn(v):isN?(v===""?"":String(v).replace(".",",")):v;
+    input=`<input id="${id}" data-f="${path}" data-t="${t}" type="${t==="date"?"date":t==="time"?"time":"text"}"${isN?' class="n" inputmode="decimal"':""} value="${esc(shown)}" placeholder="${esc(o.ph||"")}"${o.rr?" data-rr":""}${o.ro?" readonly":""}>`; }
+  return `<label class="f ${o.cls||""}">${esc(label)}<div class="in">${o.l?`<span>${o.l}</span>`:""}${input}${o.r?`<span>${o.r}</span>`:""}</div>${o.hint?`<div class="hint">${o.hint}</div>`:""}</label>`;
+}
+function parseField(el){
+  const t=el.dataset.t;
+  if(t==="bool") return el.checked;
+  if(t==="money") return parseNum(el.value);
+  if(t==="num"||t==="int"){ if(!String(el.value).trim()) return null; const n=parseNum(el.value); return t==="int"?Math.round(n):n; }
+  return el.value;
+}
+function onDrawerInput(e){ const el=e.target; if(el.id==="descTxt"){ D.descTxt=el.value; return; } if(!el.dataset||!el.dataset.f) return; if(el.dataset.t==="bool") return; edit(el.dataset.f,parseField(el)); }
+function onDrawerChange(e){
+  const el=e.target; if(!el.dataset||!el.dataset.f) return;
+  if(el.dataset.t==="bool"){ edit(el.dataset.f,el.checked); if(el.dataset.f==="habilitacao.aprovada"&&el.checked&&!(D.work.habilitacao||{}).aprovadaEm) edit("habilitacao.aprovadaEm",todayISO()); }
+  if(el.dataset.rr!==undefined) renderTab();
+}
+
+/* =================== abas do painel =================== */
+const box=(t,inner,small)=>`<section class="box"><div class="hd"><h2>${t}</h2>${small?`<small>${small}</small>`:""}</div><div class="bd">${inner}</div></section>`;
+const extLink=(u,t)=>safeUrl(u)?`<a href="${hrefOk(u)}" target="_blank" rel="noopener">${esc(t)}</a>`:"";
+function tabDados(c){
+  const jud=c.tipoLeilao==="Judicial", mods=jud?MOD_JUD:MOD_EXT;
+  const modOpts=[["","Escolha…"],...mods]; if(c.modalidade&&!mods.includes(c.modalidade)) modOpts.push([c.modalidade,c.modalidade+" (informada)"]);
+  const ps=c.pracas||[];
+  const links=[extLink(c.linkAnuncio,"Abrir anúncio"),extLink(c.linkLeilaoImovel,"Abrir no Leilão Imóvel"),extLink(c.leiloeiroSite,"Site do leiloeiro")].filter(Boolean).join(" · ");
+  const cab=box("Cabeçalho do leilão",`
+   <div style="display:grid;gap:6px"><span class="lbl">Tipo de leilão</span><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><div class="seg">${["Extrajudicial","Judicial"].map(t=>`<button type="button" data-act="tipo:${t}" aria-pressed="${c.tipoLeilao===t}">${t}</button>`).join("")}</div><span class="hint">${/garimp/i.test(c.origem||"")?"Pré-preenchido pela garimpagem. Toque para corrigir.":"Define o roteiro jurídico da coluna 2."}</span></div></div>
+   <div class="fields">
+    ${fx("modalidade","Modalidade",{t:"sel",opts:modOpts,rr:true})}
+    ${fx("credor","Credor / comitente",{ph:jud?"Ex.: 1ª Vara do Trabalho":"Ex.: Caixa, Santander"})}
+    ${jud?fx("processo","Processo",{ph:"0000000-00.0000.0.00.0000"})+fx("vara","Vara")+fx("comarca","Comarca"):""}
+    ${fx("leiloeiro","Leiloeiro")}${fx("leiloeiroSite","Site do leiloeiro",{ph:"https://"})}
+   </div>
+   <div style="display:grid;gap:8px"><span class="lbl">Praças</span>
+    ${ps.map((p,i)=>`<div class="praca"><span class="pn">${ps.length>1?(i+1)+"ª":"Única"}</span>${fx("pracas."+i+".data","Data",{t:"date"})}${fx("pracas."+i+".hora","Hora",{t:"time"})}${fx("pracas."+i+".valor","Valor mínimo",{t:"money",l:"R$"})}<div style="display:grid;gap:4px;justify-items:end"><span class="hint" data-pc="${i}">${p.data?quando(p.data):""}</span><button type="button" class="sm danger" data-act="delPraca:${i}">Remover</button></div></div>`).join("")}
+    ${ps.length<2?`<div><button type="button" class="sm" data-act="addPraca">+ ${ps.length?"2ª praça":"Praça"}</button> <span class="hint">Leilão único ou venda direta: deixe só uma.</span></div>`:""}
+   </div>
+   <div class="fields">${fx("linkAnuncio","Link do anúncio",{ph:"https://",cls:"full"})}${fx("linkLeilaoImovel","Link no Leilão Imóvel",{ph:"https://www.leilaoimovel.com.br/imovel/..."})}${fx("avaliacao","Avaliação (só referência)",{t:"money",l:"R$",hint:jud?"No judicial, o laudo vai no roteiro jurídico (preço vil).":"Não aparece no card."})}</div>
+   ${links?`<div class="hint">${links}</div>`:""}`,esc(c.origem||""));
+  return fotosBox(c)+box("Imóvel",`<div class="fields">
+    ${fx("endereco","Endereço completo",{cls:"full",ph:"Rua, número, apto, bloco"})}
+    ${fx("cidade","Cidade")}${fx("bairro","Bairro")}
+    ${fx("predio","Prédio / condomínio")}${fx("cep","CEP")}
+    ${fx("tipoImovel","Tipo",{t:"sel",opts:[["","—"],"Apartamento","Casa","Casa em condomínio","Sala comercial","Loja","Terreno","Galpão","Outro"]})}
+    ${fx("situacao","Situação",{t:"sel",opts:[["","Não informado"],"Ocupado","Desocupado"]})}
+    ${fx("areaPrivativa","Área privativa",{t:"num",r:"m²"})}${fx("areaTotal","Área total",{t:"num",r:"m²"})}
+    ${fx("quartos","Quartos",{t:"int"})}${fx("vagas","Vagas",{t:"int"})}
+    ${fx("vagaNaMatricula","A vaga está na matrícula?",{t:"sel",opts:[["","Não informado"],"Sim","Não","Sem vaga"]})}
+    ${fx("numeroCaixa","Número do imóvel Caixa")}
+    ${fx("matricula","Matrícula")}${fx("cartorio","Cartório / ofício")}
+    ${fx("inscricao","Inscrição imobiliária")}
+    ${fx("descricao","Descrição do anúncio",{t:"area",cls:"full"})}
+   </div>
+`)+cab+pontosBox(c);
+}
+function fotosBox(c){
+  const fs=c.fotos||[];
+  const fotos=fs.map((f,i)=>`<figure><a href="/_blob/${esc(f.id)}" target="_blank" rel="noopener"><img src="/_blob/${esc(f.id)}" alt="${esc(f.nome||"Foto")}"></a><button type="button" class="sm" data-act="rmFoto:${i}" aria-label="Remover foto">×</button></figure>`).join("");
+  const capa=fs[0]?`<a class="capa" href="/_blob/${esc(fs[0].id)}" target="_blank" rel="noopener"><img src="/_blob/${esc(fs[0].id)}" alt="${esc(fs[0].nome||"Foto do imóvel")}"></a>`:`<div class="capa vazia">${ICO_CASA}<span>Nenhuma foto no card</span></div>`;
+  return box("Fotos",`${capa}${fs.length?`<div class="thumbs">${fotos}</div>`:""}
+   ${(c.fotosUrls||[]).length?`<div class="chips">${c.fotosUrls.map((u,i)=>`<a class="go" href="${hrefOk(u)}" target="_blank" rel="noopener">Foto ${i+1} do anúncio ↗</a>`).join("")}</div><span class="hint">As fotos do anúncio abrem no site do leilão.</span>`:(c.linkLeilaoImovel||c.linkAnuncio?`<div>${extLink(c.linkLeilaoImovel||c.linkAnuncio,"Ver fotos no anúncio ↗")}</div>`:"")}
+   ${assets?`<div><button type="button" class="sm" data-act="up:foto">+ Enviar fotos</button></div>`:`<span class="hint">Envio de arquivos indisponível para o seu acesso.</span>`}`,fs.length?fs.length+" foto(s)":"");
+}
+function pontosBox(c){
+  const ps=c.pontos||[];
+  let inner;
+  if(D.editPontos) inner=`<div class="pontos">${ps.map((p,i)=>`<div class="pe">${fx("pontos."+i+".texto","Ponto "+(i+1))}${fx("pontos."+i+".link","Link da fonte (opcional)",{ph:"https://"})}<button type="button" class="sm danger" data-act="delPonto:${i}">Remover</button></div>`).join("")}</div>
+     <div class="bar"><button type="button" class="sm" data-act="addPonto">+ Ponto</button><button type="button" class="sm pri" data-act="editPontos">Concluir</button></div>`;
+  else inner=(ps.length?`<ol class="pontos">${ps.map((p,i)=>`<li><span class="n">${i+1}</span><span>${esc(p.texto||"")}</span><span>${p.link?`<a class="go" href="${hrefOk(p.link)}" target="_blank" rel="noopener">fonte ↗</a>`:""}</span></li>`).join("")}</ol>`:`<span class="hint">Nenhum ponto de atenção. Ex.: “Área não informada, checar matrícula”.</span>`)
+     +`<div><button type="button" class="sm" data-act="editPontos">${ps.length?"Editar pontos":"+ Ponto"}</button></div>`;
+  return box("Pontos de atenção",inner+`<div class="fields">${fx("observacoes","Anotações livres",{t:"area",cls:"full"})}</div>`,ps.length?ps.length+" ponto(s)":"");
+}
+function hostDe(u){ try{ return new URL(u).hostname.replace(/^www\./,""); }catch(e){ return ""; } }
+function mercadoResumo(c){
+  const m=mercado(c), l=lanceRef(c), mc=!isFinite(m.margem)?"":m.margem>=cB()?"pos":"neg";
+  return `<div class="stats">
+    <div class="stat"><span class="lbl">Venda (P25)</span><b class="big">${fK(m.p25)}</b></div>
+    <div class="stat"><span class="lbl">Lance (${esc(lanceRefLbl(c))})</span><b class="big">${fK(l)}</b></div>
+    <div class="stat"><span class="lbl">Margem bruta</span><b class="big ${mc}">${fP(m.margem)}</b></div>
+    <div class="stat"><span class="lbl">R$/m² (P25)</span><b>${isFinite(m.m2)?fR(m.m2):"—"}</b></div>
+    <div class="stat"><span class="lbl">Faixa</span><b>${isFinite(m.min)?fK(m.min)+" – "+fK(m.max):"—"}</b></div>
+    <div class="stat"><span class="lbl">Teto (maior real)</span><b>${fK(m.teto)}</b></div>
+    <div class="stat"><span class="lbl">Nível usado</span><b>${m.nivel?NIVL[m.nivel]:"—"}</b></div>
+    <div class="stat"><span class="lbl">Comparáveis</span><b>${m.n}${m.total>m.n?" de "+m.total:""}</b></div>
+  </div>
+  ${m2RefCard(c)}
+  <div class="hint">${esc(m.metodo||"Cadastre comparáveis para calcular o P25.")} · Margem bruta = P25 ÷ lance − 1 · corte ${CFG.corteBruto}%. Hierarquia: Prédio &gt; Rua &gt; Bairro.</div>
+  ${m.avisos.map(a=>`<div class="alert yel">${esc(a)}</div>`).join("")}`;
+}
+function tabMercado(c){
+  const comps=c.comparaveis||[]; if(!D.editComp) D.editComp=new Set();
+  const rows=comps.map((x,i)=>{ const p="comparaveis."+i; const ct=+x.valor>0&&contaminado(x,c);
+    if(!D.editComp.has(i)){
+      const nums=[+x.valor>0?fR(+x.valor):"",+x.area>0?String(x.area).replace(".",",")+" m²":"",+x.valor>0&&+x.area>0?fR(x.valor/x.area)+"/m²":"",+x.quartos?x.quartos+"q":"",+x.vagas?x.vagas+" vaga(s)":"",+x.condominio?"cond. "+fR(+x.condominio):""].filter(Boolean).join(" · ");
+      return `<div class="fonte ${x.excluido?"off":""}"><div class="fh"><b>Fonte ${i+1}</b><span class="selo blue">${x.nivel?NIVL[nivKey(x.nivel)]:"Sem nível"}</span><span class="hint">${esc(hostDe(x.link)||"sem link")}</span>${ct?`<span class="selo red">igual ao lance/avaliação</span>`:""}${x.excluido?`<span class="selo gray">fora do cálculo</span>`:""}
+        <span class="acts"><button type="button" class="sm" data-act="editComp:${i}">Editar</button>${x.link?`<a class="go" href="${hrefOk(x.link)}" target="_blank" rel="noopener">Abrir anúncio ↗</a>`:""}</span></div>
+        <div class="fd">${x.descricao?esc(x.descricao):`<span class="hint">Sem descrição. Toque em Editar para dizer o que é este imóvel e por que serve de comparação.</span>`}</div>
+        <div class="fn">${nums||"sem valores"}</div>${x.obs?`<div class="hint">${esc(x.obs)}</div>`:""}</div>`; }
+    return `<div class="comp ${x.excluido?"off":""}">
+      <div class="ch"><b>Fonte ${i+1}</b><div class="seg">${NIV.map(nv=>`<button type="button" data-act="cniv:${i}:${nv}" aria-pressed="${!!x.nivel&&nivKey(x.nivel)===nv}">${NIVL[nv]}</button>`).join("")}</div>
+      <span class="hint" data-cm2="${i}">${+x.valor>0&&+x.area>0?fR(x.valor/x.area)+"/m²":""}</span>
+      ${ct?`<span class="selo red">igual ao lance/avaliação</span>`:""}
+      <span style="display:flex;gap:10px;align-items:center;margin-left:auto"><label class="chk"><input type="checkbox" data-f="${p}.excluido" data-t="bool"${x.excluido?" checked":""}> Fora do cálculo</label><button type="button" class="sm danger" data-act="delComp:${i}">Remover</button><button type="button" class="sm pri" data-act="doneComp:${i}">Concluir</button></span></div>
+      <div class="fields">${fx(p+".descricao","Descrição (o que é e por que compara)",{cls:"full",ph:"Ex.: mesmo prédio, 2q 48 m², 3º andar, reformado"})}</div>
+      <div class="cg"><div class="lk">${fx(p+".link","Link (obrigatório)",{ph:"https://"})}</div>${fx(p+".valor","Valor",{t:"money",l:"R$"})}${fx(p+".area","Área priv.",{t:"num",r:"m²"})}${fx(p+".quartos","Quartos",{t:"int"})}</div>
+      <div class="cg2">${fx(p+".vagas","Vagas",{t:"int"})}${fx(p+".condominio","Condomínio",{t:"money",r:"/mês"})}${fx(p+".iptu","IPTU",{t:"money",r:"/mês"})}${fx(p+".obs","Obs.")}</div>
+    </div>`; }).join("");
+  const liq=["Alta (< 6 meses)","Média (até 12)","Baixa (> 12)"];
+  return `<section class="box"><div class="hd"><h2>Preço de venda conservador</h2></div><div class="bd" id="mkSum">${mercadoResumo(c)}</div></section>`
+   +box("Fontes da análise (comparáveis)",`${rows||`<div class="hint">Nenhuma fonte. Comece pelo próprio prédio, depois a rua, depois o bairro. Compare área privativa com área privativa.</div>`}<div><button type="button" class="sm" data-act="addComp">+ Fonte</button></div>`,comps.length+" fonte(s) · cada uma com o link para conferir")
+   +box("Liquidez",`<div class="seg">${liq.map(v=>`<button type="button" data-act="liq:${encodeURIComponent(v)}" aria-pressed="${c.liquidez===v}">${esc(v)}</button>`).join("")}</div>
+     <div class="fields">${fx("liquidezObs","Observação",{cls:"full"})}${fx("relatoCorretores","Relato de corretores (opcional)",{t:"area",cls:"full"})}</div>`);
+}
+function debQuem(c,k){ const x=((c.debitos||{})[k])||{}; const lb=(DEB_Q.find(z=>z[0]===(x.quem||""))||[0,"Não informado"])[1]; return lb+(+x.valor?" · "+fR(+x.valor):""); }
+function debResumo(c,s){
+  const ed=`<div class="hint">Edital/anúncio: condomínio atrasado — ${esc(debQuem(c,"cond"))} · IPTU atrasado — ${esc(debQuem(c,"iptu"))}${c.debitosRegra?" · "+esc(c.debitosRegra):""}</div>`;
+  const p=s?s.p:calcDoCard(c);
+  return `<div class="stats">
+    <div class="stat"><span class="lbl">Débitos a quitar</span><b>${fR(+p.debitos||0)}</b></div>
+    <div class="stat"><span class="lbl">Condomínio/mês</span><b>${fR(+p.condominio||0)}</b></div>
+    <div class="stat"><span class="lbl">IPTU/mês</span><b>${fR(+p.iptu||0)}</b></div>
+    <div class="stat"><span class="lbl">Desocupação</span><b>${fR(+p.desocupacao||0)}</b></div></div>
+    <div class="hint">${s?"Valores da calculadora. Para mudar, toque em “Abrir calculadora”.":"Prévia: a calculadora abre com esses valores. Ajuste lá e salve."}</div>${ed}`;
+}
+function tabCustos(c){
+  const s=simInfo(c), m=mercado(c), l=lanceRef(c), aval=+c.avaliacao||0;
+  const debRow=(k,t)=>{ const d=((c.debitos||{})[k])||{}; return `<div style="display:grid;gap:6px"><span class="lbl">${t}</span><div class="seg">${DEB_Q.map(([v,lb])=>`<button type="button" data-act="debq:${k}:${v}" aria-pressed="${(d.quem||"")===v}">${lb}</button>`).join("")}</div>
+     <div class="fields">${fx("debitos."+k+".valor","Valor estimado em atraso",{t:"money",l:"R$"})}<div class="hint" style="align-self:end">${d.quem==="arrematante_10"?(aval>0?"Teto de 10% da avaliação: "+fR(aval*0.1):"Informe a avaliação na aba Dados para aplicar o teto de 10%."):d.quem==="vendedor"?"Fica com o vendedor: não entra no custo.":""}</div></div></div>`; };
+  const tot=debitosArrem(c);
+  let st;
+  if(s){ const diffs=[]; if(l>0&&Math.abs(s.p.lance-l)>1) diffs.push("lance "+fR(s.p.lance)+" no cálculo e "+fR(l)+" no card"); if(isFinite(m.p25)&&Math.abs(s.p.venda-Math.round(m.p25))>1) diffs.push("venda "+fR(s.p.venda)+" no cálculo e P25 atual "+fR(Math.round(m.p25)));
+    st=`<div class="stats">
+      <div class="stat"><span class="lbl">ROI líquido</span><b class="big ${s.roi>=cL()?"pos":"neg"}">${fP(s.roi)}</b></div>
+      <div class="stat"><span class="lbl">Resultado</span><b class="${s.r.res>=0?"pos":"neg"}">${fR(s.r.res)}</b></div>
+      <div class="stat"><span class="lbl">Taxa mensal</span><b>${isFinite(s.r.mes)?(s.r.mes*100).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%":"—"}</b></div>
+      <div class="stat"><span class="lbl">Custo até venda</span><b>${fR(s.r.custo)}</b></div>
+      <div class="stat"><span class="lbl">Lance usado</span><b>${fK(s.p.lance)}</b></div>
+      <div class="stat"><span class="lbl">Venda usada</span><b>${fK(s.p.venda)}</b></div>
+      <div class="stat"><span class="lbl">Lance máx. (${CFG.corteLiquido}%)</span><b>${fK(s.max)}</b></div>
+      <div class="stat"><span class="lbl">Giro</span><b>${s.p.giro} meses</b></div></div>
+      <div class="hint">Cálculo salvo em ${fDT(s.s.atualizadoEm)}.</div>
+      ${diffs.length?`<div class="alert yel">Desatualizado: ${esc(diffs.join("; "))}. Abra a calculadora, toque em “Puxar dados da análise” e salve.</div>`:""}`; }
+  else st=`<div class="alert gray">Ainda não há cálculo para este imóvel. A calculadora abre com os dados do card e os seus padrões (giro ${CFG.giro} meses, reforma ${fR(+CFG.reforma)}). Ajuste, salve e você volta para cá.</div>`;
+  return `<section class="box"><div class="hd"><h2>Custos e retorno</h2><button type="button" class="pri" data-act="calcOpen">Abrir calculadora</button></div><div class="bd">${st}</div></section>`
+   +box("Débitos e despesas do imóvel",debResumo(c,s),s?"do cálculo salvo":"prévia, antes do cálculo");
+}
+/* jurídico */
+function qHTML(c,b,it){
+  const a=ans(c,b.id,it.id), key=b.id+"."+it.id, base="juridico."+key;
+  const isLock=!!it.lock||it.k==="vil";
+  const lockRaw=it.k==="vil"?!!precoVil(c).vil:(!!it.lock&&a.resp===it.lock);
+  const travado=itemTrava(c,b,it), exc=a.excecao&&a.excecao.txt;
+  let ctl="";
+  if(it.k==="sn"||it.k==="snn") ctl=`<div class="seg">${(it.k==="snn"?["sim","nao","na"]:["sim","nao"]).map(v=>`<button type="button" data-act="ans:${key}:${v}" aria-pressed="${a.resp===v}">${RESP_L[v]}</button>`).join("")}</div>`;
+  else if(it.k==="multi"){ const sel=multiResp(c,b,it); ctl=`<div class="seg">${it.opts.map(v=>`<button type="button" data-act="multi:${key}:${encodeURIComponent(v)}" aria-pressed="${sel.includes(v)}">${esc(v)}</button>`).join("")}</div>${!Array.isArray(a.resp)&&sel.length?`<span class="hint">Pré-preenchido pelo anúncio</span>`:""}`; }
+  else if(it.k==="opt") ctl=`<div class="seg">${it.opts.map(v=>`<button type="button" data-act="ans:${key}:${encodeURIComponent(v)}" aria-pressed="${a.resp===v}">${esc(v)}</button>`).join("")}</div>`;
+  else if(it.k==="txt") ctl=`<div class="in" style="flex:1;min-width:200px"><textarea id="j-${b.id}-${it.id}" data-f="${base}.resp" data-t="text" placeholder="Escreva aqui">${esc(a.resp||"")}</textarea></div>`;
+  else if(it.k==="num") ctl=`<div class="fields three" style="flex:1">${it.nums.map(([k,l,t])=>fx(base+".vals."+k,l,{t:t||"num",rr:b.id==="J2"})).join("")}</div>`;
+  else if(it.k==="vil"){ const pv=precoVil(c);
+    ctl=`<div style="display:grid;gap:6px;flex:1"><div class="alert ${!pv.ok?"gray":pv.vil?"red":"green"}">${!pv.ok?"Preencha o valor do laudo (acima) e a praça para calcular.":`Lance mínimo ${fR(pv.lance)} = ${fP(pv.pct)} do laudo ${fR(pv.laudo)} · limite ${fR(pv.lim)} → ${pv.vil?"<b>preço vil</b>":"acima do limite"}`}</div>
+      <div class="row"><label class="chk"><input type="checkbox" data-f="${base}.incapaz" data-t="bool" data-rr${a.incapaz?" checked":""}> Imóvel de incapaz (limite 80%)</label><label class="chk"><input type="checkbox" data-f="${base}.autorizado" data-t="bool" data-rr${a.autorizado?" checked":""}> Juiz autorizou mínimo menor</label></div></div>`; }
+  if(it.k==="info"){ const d=c.debitos||{}; const q=k=>{ const x=d[k]||{}; const lb=(DEB_Q.find(z=>z[0]===(x.quem||""))||[0,"Não informado"])[1]; return lb+(+x.valor?" · "+fR(+x.valor):""); };
+    const si=simInfo(c); return `<div class="q"><div class="qt"><span>${esc(it.q)}</span></div><div class="hint">Edital — condomínio: <b>${esc(q("cond"))}</b> · IPTU: <b>${esc(q("iptu"))}</b> · débitos no cálculo: <b>${si?fR(+si.p.debitos||0):"cálculo não salvo"}</b> <button type="button" class="link sm" data-act="calcOpen">abrir calculadora</button></div></div>`; }
+  const obs=it.k==="txt"?"":`<div class="in obs"><input type="text" id="o-${b.id}-${it.id}" data-f="${base}.obs" data-t="text" placeholder="${esc(it.ph||"Observação / evidência")}" value="${esc(a.obs||"")}"></div>`;
+  const att=assets?`<span class="att">${a.anexo?`<a href="/_blob/${esc(a.anexo.id)}" target="_blank" rel="noopener">${esc(a.anexo.nome||"anexo")}</a> <button type="button" class="link sm" data-act="rmanexo:${key}">remover</button>`:`<button type="button" class="sm" data-act="anexar:${key}">Anexar</button>`}</span>`:(a.anexo?`<span class="att"><a href="/_blob/${esc(a.anexo.id)}" target="_blank" rel="noopener">${esc(a.anexo.nome||"anexo")}</a></span>`:"");
+  let extra="";
+  if(travado) extra=`<div class="alert red"><div>🔒 <b>Travado:</b> “${esc(it.q)}” = <b>${it.k==="vil"?"preço vil":esc(RESP_L[a.resp]||a.resp)}</b>. ${esc(it.motivo)}</div><div>Bloqueia só o avanço do imóvel. Se foi engano, é só mudar a resposta acima. Se a resposta está certa e você quer seguir mesmo assim, registre uma exceção (fica no histórico com o seu nome).</div><div class="row"><div class="in obs"><input type="text" id="ex-${b.id}-${it.id}" placeholder="Justificativa da exceção"></div><button type="button" class="sm" data-act="exc:${key}">Registrar exceção</button></div></div>`;
+  else if(exc&&lockRaw) extra=`<div class="alert gray"><div>Exceção registrada por <span data-uid="${esc(a.excecao.por||"")}">${esc(nameOf(a.excecao.por))}</span> em ${fDT(a.excecao.em)}: ${esc(a.excecao.txt)}</div><div><button type="button" class="link sm" data-act="rmexc:${key}">Remover exceção</button></div></div>`;
+  else if(itemAlerta(c,b,it)) extra=`<div class="hint wrn">${it.id==="divida"?"Dívida pequena perto do valor do imóvel: risco de acordo ou pagamento pelo devedor (o leilão pode cair).":"Atenção"+(it.alertTxt?": "+esc(it.alertTxt):"")+". Registre o detalhe na observação."}</div>`;
+  const msg=D&&D.msg[key]?`<div class="hint neg">${esc(D.msg[key])}</div>`:"";
+  return `<div class="q ${travado?"locked":""}"><div class="qt">${isLock?`<span class="lk" title="Item com trava">🔒</span>`:""}<span>${esc(it.q)}</span></div>
+    <div class="row">${ctl}</div>${it.k==="vil"?"":`<div class="row">${obs}${att}</div>`}${extra}${msg}</div>`;
+}
+function tabJuridico(c){
+  const R=roteiro(c), j=jurStatus(c);
+  if(!D.openInit){ D.openInit=true; let first=true; for(const s of j.blocos){ if(!s.aplica) continue; if(s.travas||(first&&s.resp<s.total)){ D.open.add(s.b.id); if(s.resp<s.total) first=false; } } }
+  const rc=r=>r==="alto"?"red":r==="médio"?"yel":"green";
+  const head=`${j.travas.map(t=>`<div class="alert red">🔒 <b>Travado:</b> “${esc(t.q)}” = <b>${t.resp?esc(RESP_L[t.resp]||t.resp):"preço vil"}</b>. ${esc(t.motivo)}</div>`).join("")}
+   ${!j.travas.length&&j.lockPend.length?`<div class="alert gray">${j.lockPend.length} item(ns) com 🔒 ainda sem resposta. Eles precisam ser respondidos para o imóvel avançar.</div>`:""}
+   ${!j.travas.length&&!j.lockPend.length&&j.resp?`<div class="alert green">Nenhuma trava ativa.</div>`:""}
+   <div class="hint">Cada item: Sim / Não / Não se aplica, observação e anexo. O risco de cada bloco sai das respostas.</div>`;
+  return box("Roteiro "+(c.tipoLeilao==="Judicial"?"judicial":"extrajudicial"),head,`${j.resp}/${j.total} respondidos${j.risco?" · risco "+j.risco:""}`)
+   +R.map(b=>{ const s=j.blocos.find(x=>x.b===b); const items=b.items.filter(it=>itemAplica(c,b,it));
+     return `<details class="box blk" data-blk="${b.id}"${D.open.has(b.id)?" open":""}><summary><h3>${b.id} · ${esc(b.t)}</h3><span class="meta">${s.aplica?`${s.resp}/${s.total}`:"não se aplica"}${s.risco?` <span class="selo ${rc(s.risco)}">risco ${s.risco}</span>`:""}${s.travas?` <span class="selo red">travado</span>`:""}</span></summary>
+      ${b.note?`<div class="q hint">${esc(b.note)}</div>`:""}
+      ${!s.aplica?`<div class="q hint">Não se aplica a esta modalidade${c.modalidade?" ("+esc(c.modalidade)+")":""}.</div>`:items.map(it=>qHTML(c,b,it)).join("")}</details>`; }).join("");
+}
+function answer(key,v){
+  const [bid,iid]=key.split("."); const b=roteiro(D.work).find(x=>x.id===bid); if(!b) return; const it=b.items.find(x=>x.id===iid); if(!it) return;
+  const a=ans(D.work,bid,iid);
+  delete D.msg[key];
+  edit("juridico."+key+".resp",v,"Jurídico "+bid+" · "+it.q+" = "+(RESP_L[v]||v));
+  renderTab();
+}
+/* decisão */
+function decisaoResumo(c){
+  const m=mercado(c), s=simInfo(c), j=jurStatus(c);
+  return `<div class="stats">
+    <div class="stat"><span class="lbl">Margem bruta</span><b class="${m.margem>=cB()?"pos":"neg"}">${fP(m.margem)}</b></div>
+    <div class="stat"><span class="lbl">ROI líquido</span><b class="${s&&s.roi>=cL()?"pos":"neg"}">${s?fP(s.roi):"—"}</b></div>
+    <div class="stat"><span class="lbl">Lance máx. (${CFG.corteLiquido}%)</span><b>${s?fK(s.max):"—"}</b></div>
+    <div class="stat"><span class="lbl">Lance mínimo</span><b>${fK(lanceRef(c))}</b></div>
+    <div class="stat"><span class="lbl">Jurídico</span><b>${j.resp}/${j.total}</b></div>
+    <div class="stat"><span class="lbl">Risco</span><b class="${j.risco==="alto"?"neg":j.risco==="médio"?"wrn":"pos"}">${j.risco||"—"}</b></div>
+    <div class="stat"><span class="lbl">Travas</span><b class="${j.travas.length?"neg":""}">${j.travas.length}</b></div>
+    <div class="stat"><span class="lbl">Preço teto</span><b>${fK(+c.precoTeto)}</b></div></div>`;
+}
+function tabDecisao(c){
+  const d=c.decisao||{}, s=simInfo(c);
+  const sug=s&&isFinite(s.max)?`Sugestão da calculadora (ROI ${CFG.corteLiquido}%): ${fR(s.max)}`:"Salve o cálculo de custos para ter a sugestão.";
+  const over=s&&+c.precoTeto>0&&+c.precoTeto>s.max;
+  return `<section class="box"><div class="hd"><h2>Resumo</h2></div><div class="bd" id="decSum">${decisaoResumo(c)}</div></section>`
+   +box("Parecer",`<div class="seg">${["Prosseguir","Prosseguir com ressalva","Descartar"].map(v=>`<button type="button" data-act="parecer:${encodeURIComponent(v)}" aria-pressed="${d.parecer===v}">${v}</button>`).join("")}</div>
+    <div class="fields">${d.parecer==="Prosseguir com ressalva"?fx("decisao.justificativa","Ressalvas",{t:"area",cls:"full",ph:"O que precisa ser acompanhado"}):""}
+     ${fx("precoTeto","Preço teto (lance máximo aprovado)",{t:"money",l:"R$",hint:sug})}
+     <div style="display:grid;align-content:end;gap:6px">${s&&isFinite(s.max)?`<button type="button" class="sm" data-act="sugTeto">Usar sugestão</button>`:""}</div>
+     ${fx("decisao.aprovadoPor","Quem aprovou",{t:"sel",opts:[["","—"],"Magno","Marcelo"]})}${fx("decisao.data","Data",{t:"date"})}</div>
+    ${over?`<div class="alert yel">O preço teto passa do lance máximo para ${CFG.corteLiquido}% de ROI.</div>`:""}
+    ${d.parecer==="Descartar"?`<div class="alert yel">Parecer “Descartar”. <span><button type="button" class="sm danger" data-act="descJur">Descartar o imóvel (motivo: jurídico)</button></span></div>`:""}`);
+}
+/* leilão */
+function leilaoNum(c){
+  const s=simInfo(c); if(!s) return null; const l=lanceRef(c); const teto=+c.precoTeto||s.max;
+  const at=v=>v>0?calc(s.p,v,s.p.giro):null;
+  return {s,l,teto,rMin:at(l),rMax:at(teto)};
+}
+function tabLeilao(c){
+  const p=proxPraca(c), h=c.habilitacao||{}, p1=proxData(c), d=p1?daysUntil(p1.data):null, jud=c.tipoLeilao==="Judicial";
+  const ck=(k,t,extra)=>`<label class="chk" style="align-items:flex-start"><input type="checkbox" id="h-${k}" data-f="habilitacao.${k}" data-t="bool" data-rr${h[k]?" checked":""}><span>${t}${extra||""}</span></label>`;
+  const n=leilaoNum(c);
+  const tm=r=>r&&isFinite(r.mes)?(r.mes*100).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%":"—";
+  const linha=(lb,v,r)=>`<tr><td>${lb}</td><td>${fR(v)}</td><td class="${r&&r.res>=0?"c-ok":"c-bad"}">${r?fR(r.res):"—"}</td><td class="c-${r?cls(r.roi,cL()):""}">${r?fP(r.roi):"—"}</td><td>${tm(r)}</td></tr>`;
+  const acesso=c.linkLeilaoImovel
+    ?`<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><a class="go" style="background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-size:13.5px;padding:7px 12px" href="${hrefOk(c.linkLeilaoImovel)}" target="_blank" rel="noopener">Abrir no Leilão Imóvel ↗</a>${extLink(c.leiloeiroSite,"Site do leiloeiro ↗")?`<a class="go" href="${hrefOk(c.leiloeiroSite)}" target="_blank" rel="noopener">Site do leiloeiro ↗</a>`:""}${c.linkAnuncio?`<a class="go" href="${hrefOk(c.linkAnuncio)}" target="_blank" rel="noopener">Anúncio ↗</a>`:""}</div><div class="hint" style="word-break:break-all">${esc(c.linkLeilaoImovel)}</div>`
+    :`<div class="alert gray">Nenhum link no Leilão Imóvel cadastrado. Preencha o campo “Link no Leilão Imóvel” na aba <button type="button" class="link" data-act="tab:dados">Dados</button>.</div>${c.leiloeiroSite||c.linkAnuncio?`<div style="display:flex;flex-wrap:wrap;gap:8px">${c.leiloeiroSite?`<a class="go" href="${hrefOk(c.leiloeiroSite)}" target="_blank" rel="noopener">Site do leiloeiro ↗</a>`:""}${c.linkAnuncio?`<a class="go" href="${hrefOk(c.linkAnuncio)}" target="_blank" rel="noopener">Anúncio ↗</a>`:""}</div>`:""}`;
+  return (c.coluna<3?`<div class="alert gray">Esta etapa abre quando o imóvel chega à coluna Leilão. Você já pode adiantar a habilitação.</div>`:"")
+   +box("Acesso ao leilão",acesso,"copiado da aba Dados")
+   +box("Habilitação no leiloeiro",`${!h.aprovada&&d!=null&&d<=3?`<div class="alert red"><b>HABILITAR:</b> a ${esc(pracaLbl(c,p1).toLowerCase())} é ${quando(p1.data)} e a habilitação ainda não foi aprovada.</div>`:""}
+     ${ck("cadastro","Cadastro no site do leiloeiro")}
+     ${ck("docs","Documentos enviados")}
+     ${ck("aprovada","<b>Habilitação aprovada</b>")}
+     ${ck("caucao","Caução/depósito, se exigido")}
+     ${ck("pagamento","Forma de pagamento pronta (recursos / FGTS / financiamento pré-aprovado)")}
+     ${ck("diaSuspensao","<b>No dia:</b> conferir se saiu decisão suspendendo o leilão",jud?" e se credores trabalhistas/fiscais habilitaram créditos":"")}
+     ${ck("diaTeto","<b>No dia:</b> preço teto confirmado — não passar de "+fR(n?n.teto:+c.precoTeto))}
+     ${c.leiloeiro||c.leiloeiroSite?`<div class="hint">Leiloeiro: ${esc(c.leiloeiro||"")} ${extLink(c.leiloeiroSite,"abrir site")}</div>`:""}`,"etapa obrigatória")
+   +box("Praça",`<div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+       <div class="stat"><span class="lbl">Data (${esc(lanceRefLbl(c))})</span><b class="${p&&daysUntil(p.data)<=0?"neg":""}">${p?fD(p.data)+(p.hora?" "+esc(p.hora):""):"—"}</b><span class="hint">${p?quando(p.data):""}</span></div>
+       <div class="stat"><span class="lbl">Lance mínimo</span><b>${fR(lanceRef(c))}</b></div>
+       <div class="stat"><span class="lbl">Lance máximo (teto)</span><b>${n?fR(n.teto):fR(+c.precoTeto)}</b></div></div>
+     ${p1&&p&&p1!==p?`<div class="hint">A ${esc(pracaLbl(c,p1).toLowerCase())} (${fD(p1.data)}) vem antes, com mínimo de ${fR(+p1.valor)}. A habilitação vale para ela; o card continua no quadro até a última praça.</div>`:""}
+     ${n?`<div class="tw"><table><thead><tr><th>No lance</th><th>Valor</th><th>Resultado</th><th>ROI</th><th>Taxa mensal</th></tr></thead><tbody>${linha("Mínimo",n.l,n.rMin)}${linha("Máximo (teto)",n.teto,n.rMax)}</tbody></table></div><div class="hint">Giro de ${n.s.p.giro} meses, venda ${fR(n.s.p.venda)}, conforme o cálculo salvo.</div>`:`<div class="alert gray">Salve o cálculo na aba Custos para ver resultado, ROI e taxa mensal.</div>`}`)
+   +(n?`<section class="box"><div class="hd"><h2>Tabela de lances</h2><small>giro de ${n.s.p.giro} meses</small></div><div class="tw">${"<table>"+lancesHTML(Object.assign({},n.s.p,{lance:n.l}))+"</table>"}</div>${LEG_LANCES}</section>`:"");
+}
+/* resultado */
+const RES_L={arrematado:"Arrematado",nao_arrematado:"Não arrematado",suspenso:"Suspenso"};
+function tabResultado(c){
+  if(c.coluna<3) return `<div class="alert gray">O resultado é registrado quando o imóvel está na coluna Leilão.</div>`;
+  const r=c.resultado||{}, reg=c.coluna===4, t=r.tipo||(reg?"":"arrematado");
+  const campos=t==="arrematado"?`${fx("resultado.valor","Valor da arrematação",{t:"money",l:"R$"})}${fx("resultado.data","Data",{t:"date"})}`
+    :t==="nao_arrematado"?`${fx("resultado.vencedor","Lance vencedor (opcional)",{t:"money",l:"R$"})}${fx("resultado.quem","Quem arrematou (se souber)")}${fx("resultado.data","Data",{t:"date"})}`
+    :t==="suspenso"?`${fx("resultado.motivo","Motivo da suspensão",{cls:"full"})}${fx("resultado.data","Data",{t:"date"})}`:"";
+  let calib="";
+  if(t==="nao_arrematado"&&+r.vencedor>0){ const m=mercado(c); calib=`<div class="hint">Lance vencedor = ${isFinite(m.p25)?fP(+r.vencedor/m.p25)+" do P25":"—"} · ${+c.precoTeto>0?fP(+r.vencedor/+c.precoTeto)+" do nosso teto":""}. Fica no Histórico para calibrar a margem.</div>`; }
+  return box(reg?"Resultado registrado":"Registrar resultado",`<div class="seg">${Object.keys(RES_L).map(k=>`<button type="button" data-act="rtipo:${k}" aria-pressed="${t===k}">${RES_L[k]}</button>`).join("")}</div>
+    ${t?`<div class="fields">${campos}</div>`:`<div class="hint">Escolha o resultado da praça.</div>`}
+    ${t==="arrematado"&&!(c.habilitacao||{}).aprovada?`<div class="alert yel">A habilitação não está marcada como aprovada (aba Leilão).</div>`:""}
+    ${calib}
+    ${t==="arrematado"?`<div class="hint">Pós-arrematação (registro, desocupação, reforma, venda) fica para a próxima versão.</div>`:""}
+    ${!reg&&t?`<div><button type="button" class="pri" data-act="regRes:${t}">Registrar resultado</button> <span class="hint">${t==="nao_arrematado"?"O card sai do quadro e vai para o Histórico.":"O card vai para a coluna Resultado e o quadro volta a aparecer."}</span></div>`:""}
+    ${reg&&t==="suspenso"?`<div class="alert gray">Quando sair a nova data, atualize a praça na aba Dados e toque em “Voltar para Leilão”.</div><div><button type="button" class="pri" data-act="voltaLeilao">Voltar para Leilão</button></div>`:""}
+    ${D.msg.res?`<div class="hint neg">${esc(D.msg.res)}</div>`:""}`)
+   +((c.suspensoes||[]).length?box("Suspensões anteriores",(c.suspensoes||[]).map(s=>`<div class="hint">${fD(s.em)} · ${esc(s.motivo||"")}</div>`).join("")):"");
+}
+/* arquivos e notas */
+const ARQ_T=["Edital","Matrícula","Laudo","Print","Outro"];
+function tabNotas(c){
+  const arqs=(c.arquivos||[]).map((f,i)=>`<div class="file"><a href="/_blob/${esc(f.id)}" target="_blank" rel="noopener">${esc(f.nome||"arquivo")}</a><div class="in"><select data-f="arquivos.${i}.tipo" data-t="sel" aria-label="Tipo">${ARQ_T.map(t=>`<option${f.tipo===t?" selected":""}>${t}</option>`).join("")}</select></div><span class="hint"><span data-uid="${esc(f.por||"")}">${esc(nameOf(f.por))}</span> · ${fDT(f.em)}</span><button type="button" class="sm danger" data-act="rmArq:${i}">Remover</button></div>`).join("");
+  const cm=cmtsOf(c).reverse().map(x=>`<div class="cmt"><div class="by"><span data-uid="${esc(x.por||"")}">${esc(nameOf(x.por))}</span> · ${fDT(x.em)}</div><div class="tx">${esc(x.txt)}</div></div>`).join("");
+  const lg=logOf(c).reverse().map(x=>`<div><span class="w">${fDT(x.em)}</span><span><b data-uid="${esc(x.por||"")}">${esc(nameOf(x.por))}</b> · ${esc(x.txt)}</span></div>`).join("");
+  return box("Arquivos",`<div class="files">${arqs||`<span class="hint">Edital, matrícula, laudo, prints.</span>`}</div>${assets?`<div><button type="button" class="sm" data-act="up:arq">+ Enviar arquivos</button></div>`:`<span class="hint">Envio de arquivos indisponível para o seu acesso.</span>`}`)
+   +box("Comentários",`<div class="in"><textarea id="cmtIn" placeholder="Escreva um comentário"></textarea></div><div><button type="button" class="sm pri" data-act="addCmt">Publicar</button></div><div>${cm||`<span class="hint">Nenhum comentário.</span>`}</div>`)
+   +box("Histórico de alterações",`<div class="log">${lg||`<span class="hint">Sem registros.</span>`}</div>`);
+}
+function nameOf(id){ return id? (names[id]||"…") : "Claude (tarefa agendada)"; }
+function collectIds(c){ const s=new Set(); logOf(c).forEach(x=>x.por&&s.add(x.por)); cmtsOf(c).forEach(x=>x.por&&s.add(x.por)); (c.arquivos||[]).forEach(x=>x.por&&s.add(x.por)); for(const b of Object.values(c.juridico||{})) for(const a of Object.values(b||{})) if(a&&a.excecao&&a.excecao.por) s.add(a.excecao.por); return [...s]; }
+async function resolveNames(ids){
+  ids=ids.filter(Boolean); if(!user||!ids.length) return;
+  try{ const ps=await user.profiles(ids); for(const id of ids){ names[id]=(ps[id]&&ps[id].name)||"Alguém"; $$(`[data-uid="${CSS.escape(id)}"]`).forEach(el=>el.textContent=names[id]); } }catch(e){}
+}
+
+/* =================== rodapé do painel: travas de avanço e ações =================== */
+const MOTIVOS=["margem","jurídico","data passou","perdeu interesse","outro"];
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+function renderFoot(){
+  const c=D.work; let h="";
+  if(c.status==="descartado"){
+    h=`<div class="acts"><span class="sp">Descartado${c.descartadoEm?" em "+fD(c.descartadoEm):""}</span><button type="button" class="pri" data-act="reabrir">Reabrir</button></div>`;
+  } else if(c.status==="encerrado"&&!D.desc){
+    const reg=c.coluna===3?(D.tab==="resultado"?`<button type="button" class="pri" data-act="regRes:${esc((c.resultado||{}).tipo||"arrematado")}">Registrar resultado</button>`:`<button type="button" class="pri" data-act="tab:resultado">Registrar resultado →</button>`):"";
+    h=`<div class="acts"><span class="sp">Prazo encerrado${c.encerradoEm?" em "+fD(c.encerradoEm):""} · no Histórico</span><button type="button" data-act="reabrir">Reabrir no quadro</button>${reg}</div>`;
+  } else if(D.desc){
+    h=`<div style="display:grid;gap:8px"><span class="lbl">Motivo do descarte</span><div class="seg">${MOTIVOS.map(m=>`<button type="button" data-act="dmot:${encodeURIComponent(m)}" aria-pressed="${D.descMot===m}">${cap(m)}</button>`).join("")}</div>
+      <div class="in"><input type="text" id="descTxt" placeholder="Detalhe (obrigatório em “Outro”)" value="${esc(D.descTxt||"")}"></div>
+      ${D.msg.desc?`<div class="hint neg">${esc(D.msg.desc)}</div>`:""}
+      <div class="acts"><button type="button" data-act="cancelDesc">Cancelar</button><button type="button" class="pri" data-act="confDesc">Descartar</button></div></div>`;
+  } else {
+    const g=gate(c), col=c.coluna;
+    let why="";
+    const mb=(col>=1&&col<=3)?margemBaixa(c):null;
+    const aviso=mb!==null?`<div class="alert red">⚠️ <b>Atenção:</b> ROI líquido de <b>${fP(mb)}</b>, abaixo do desejado de ${CFG.corteLiquido}%. ${col===1?"Pode avançar, mas confira os custos e o lance antes.":"O imóvel avançou mesmo com a margem abaixo do desejado."}</div>`:"";
+    if(col===1||col===2) why=g.length?`<details class="why"${D.whyOpen?" open":""}><summary>Falta${g.length>1?"m":""} ${g.length} item${g.length>1?"s":""} para avançar</summary><ul class="why">${g.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></details>`:`<div class="why ok">Tudo certo para avançar.</div>`;
+    const back=col>=1&&col<4?`<button type="button" data-act="move:${col-1}">← Voltar para ${esc(colDe(col-1).t)}</button>`:"";
+    let adv, sp;
+    { adv=col===0?`<button type="button" class="pri" data-act="move:1">Estudar a fundo →</button>`
+      :col===1?`<button type="button" class="pri" data-act="move:2"${g.length?" disabled":""}>Avançar para Análise jurídica →</button>`
+      :col===2?`<button type="button" class="pri" data-act="move:3"${g.length?" disabled":""}>Avançar para Leilão →</button>`
+      :col===3?(D.tab==="resultado"?`<button type="button" class="pri" data-act="regRes:${esc((c.resultado||{}).tipo||"arrematado")}">Registrar resultado</button>`:`<button type="button" class="pri" data-act="tab:resultado">Registrar resultado →</button>`)
+      :c.status==="suspenso"?`<button type="button" class="pri" data-act="voltaLeilao">Voltar para Leilão</button>`:`<button type="button" data-act="voltaLeilaoCorr">Corrigir: voltar para Leilão</button>`;
+      sp="Fase: "+colLbl(colDe(col)); }
+    h=`<div class="acts"><span class="sp">${esc(sp)}</span>${back}${col<4?`<button type="button" class="danger" data-act="descartar">Descartar</button>`:""}${adv}</div>${aviso}${why}`;
+  }
+  $("#dfoot").innerHTML=h;
+}
+function mover(col){
+  const from=D.work.coluna;
+  if(from===1&&col===2){ const mb=margemBaixa(D.work); if(mb!==null) D.logs.push("⚠️ Avançou com ROI líquido de "+fP(mb)+", abaixo do desejado de "+CFG.corteLiquido+"%"); }
+  edit("coluna",col); edit("status",statusDaColuna(col,D.work),"Moveu de “"+colDe(from).t+"” para “"+colDe(col).t+"”");
+  if(col===3&&!(D.work.decisao||{}).data) edit("decisao.data",todayISO());
+  flush(); D.tab=col<from?({0:"mercado",1:"custos",2:"decisao",3:"leilao"}[col]||"dados"):{0:"dados",1:"dados",2:"juridico",3:"leilao",4:"resultado"}[col]; D.openInit=false; renderDrawer();
+}
+function onDrawerClick(e){
+  if(!D) return;
+  const ws=e.target.closest("details.why>summary"); if(ws){ const det=ws.parentElement; setTimeout(()=>{ if(D) D.whyOpen=det.open; },0); return; }
+  const sum=e.target.closest(".blk>summary");
+  if(sum){ const det=sum.parentElement; setTimeout(()=>{ if(!D) return; if(det.open) D.open.add(det.dataset.blk); else D.open.delete(det.dataset.blk); },0); return; }
+  const el=e.target.closest("[data-act]"); if(!el) return;
+  const [act,...rest]=el.dataset.act.split(":"); const arg=rest.join(":");
+  const w=D.work;
+  switch(act){
+    case "close": closeCard(); break;
+    case "menu": showMenu(el,D.id,true); break;
+    case "tab": D.tab=arg; renderHead(); renderTab(); renderFoot(); $("#dbody").scrollTop=0; break;
+    case "tipo": if(w.tipoLeilao!==arg){ edit("tipoLeilao",arg,"Corrigiu o tipo de leilão para "+arg); const mods=arg==="Judicial"?MOD_JUD:MOD_EXT; if(w.modalidade&&!mods.includes(w.modalidade)&&tipoDaModalidade(w.modalidade)!==arg) edit("modalidade",""); D.openInit=false; renderTab(); } break;
+    case "addPraca": { const ps=(w.pracas||[]).slice(); ps.push({data:"",hora:"",valor:0}); edit("pracas",ps); renderTab(); break; }
+    case "delPraca": { const ps=(w.pracas||[]).slice(); ps.splice(+arg,1); edit("pracas",ps); renderTab(); break; }
+    case "addComp": { const cs=(w.comparaveis||[]).slice(); cs.push({link:"",descricao:"",valor:0,area:null,quartos:null,vagas:null,condominio:0,iptu:0,nivel:"Bairro"}); edit("comparaveis",cs); if(!D.editComp) D.editComp=new Set(); D.editComp.add(cs.length-1); renderTab(); break; }
+    case "editComp": if(!D.editComp) D.editComp=new Set(); D.editComp.add(+arg); renderTab(); break;
+    case "doneComp": D.editComp&&D.editComp.delete(+arg); renderTab(); break;
+    case "editPontos": D.editPontos=!D.editPontos; renderTab(); break;
+    case "addPonto": { const ps=(w.pontos||[]).slice(); ps.push({texto:"",link:""}); edit("pontos",ps); D.editPontos=true; renderTab(); break; }
+    case "delPonto": { const ps=(w.pontos||[]).slice(); ps.splice(+arg,1); edit("pontos",ps); renderTab(); break; }
+    case "delComp": { const cs=(w.comparaveis||[]).slice(); cs.splice(+arg,1); edit("comparaveis",cs); D.editComp=new Set(); renderTab(); break; }
+    case "cniv": { const [i,nv]=arg.split(":"); edit("comparaveis."+i+".nivel",NIVL[nv]); renderTab(); break; }
+    case "liq": edit("liquidez",decodeURIComponent(arg)); renderTab(); break;
+    case "ans": { const i=arg.lastIndexOf(":"); answer(arg.slice(0,i),decodeURIComponent(arg.slice(i+1))); break; }
+    case "exc": { const [b,i]=arg.split("."); const inp=$("#ex-"+b+"-"+i); const t=inp?inp.value.trim():""; if(!t){ D.msg[arg]="Escreva a justificativa da exceção."; renderTab(); return; } delete D.msg[arg]; const it=roteiro(w).find(x=>x.id===b).items.find(x=>x.id===i); edit("juridico."+arg+".excecao",{txt:t,por:myId,em:new Date().toISOString()},"Registrou exceção em “"+it.q+"”: "+t); renderTab(); break; }
+    case "rmexc": { const [b,i]=arg.split("."); const it=roteiro(w).find(x=>x.id===b).items.find(x=>x.id===i); edit("juridico."+arg+".excecao",null,"Removeu a exceção de “"+it.q+"”"); renderTab(); break; }
+    case "anexar": pickFiles({kind:"anexo",key:arg},false); break;
+    case "rmanexo": edit("juridico."+arg+".anexo",null,"Removeu anexo do jurídico ("+arg+")"); renderTab(); break;
+    case "up": pickFiles({kind:arg},true); break;
+    case "rmFoto": { const f=(w.fotos||[]).slice(); f.splice(+arg,1); edit("fotos",f); renderTab(); break; }
+    case "rmArq": { const f=(w.arquivos||[]).slice(); const [x]=f.splice(+arg,1); edit("arquivos",f,"Removeu o arquivo "+(x&&x.nome||"")); renderTab(); break; }
+    case "addCmt": { const t=($("#cmtIn").value||"").trim(); if(!t) return; const id=rid(); edit("cmtx."+id,{id,por:myId,em:new Date().toISOString(),txt:t}); flush(); renderTab(); break; }
+    case "parecer": { const v=decodeURIComponent(arg); edit("decisao.parecer",v,"Parecer: "+v); if(!(w.decisao||{}).data) edit("decisao.data",todayISO()); renderTab(); break; }
+    case "sugTeto": { const s=simInfo(w); if(s&&isFinite(s.max)){ edit("precoTeto",s.max,"Preço teto: "+fR(s.max)+" (sugestão da calculadora)"); renderTab(); } break; }
+    case "descJur": D.desc=true; D.descMot="jurídico"; D.msg.desc=""; renderFoot(); break;
+    case "calcOpen": abrirCalcDoCard(D.id); break;
+    case "multi": { const i=arg.lastIndexOf(":"); const key=arg.slice(0,i), v=decodeURIComponent(arg.slice(i+1)); const [b,it]=key.split("."); const bb=roteiro(w).find(x=>x.id===b), ii=bb.items.find(x=>x.id===it); const cur=multiResp(w,bb,ii).slice(); const k=cur.indexOf(v); if(k>=0) cur.splice(k,1); else cur.push(v); edit("juridico."+key+".resp",cur,"Jurídico "+b+" · "+ii.q+" = "+(cur.join(", ")||"—")); renderTab(); break; }
+    case "debq": { const [k,v]=arg.split(":"); edit("debitos."+k+".quem",v,"Débitos: "+(k==="cond"?"condomínio":"IPTU")+" com "+((DEB_Q.find(z=>z[0]===v)||[0,"não informado"])[1]).toLowerCase()); edit("debitosValor",debitosArrem(w)); renderTab(); break; }
+    case "rtipo": { edit("resultado.tipo",arg); if(w.coluna===4) edit("status",arg,"Resultado alterado para "+RES_L[arg]); delete D.msg.res; renderTab(); break; }
+    case "regRes": if(arg&&!(w.resultado||{}).tipo) edit("resultado.tipo",arg); registrarResultado(); break;
+    case "voltaLeilao": case "voltaLeilaoCorr": {
+      if(act==="voltaLeilao"&&!proxPraca(w)){ D.msg.res="Atualize a data da praça na aba Dados antes de voltar para Leilão."; D.tab="resultado"; renderDrawer(); return; }
+      const r=w.resultado||{}; if(r.tipo==="suspenso") edit("suspensoes",(w.suspensoes||[]).concat({motivo:r.motivo||"",em:r.data||todayISO()}));
+      edit("resultado",{}); mover(3); break; }
+    case "move": mover(+arg); break;
+    case "descartar": D.desc=true; D.descMot=""; D.descTxt=""; D.msg.desc=""; renderFoot(); break;
+    case "dmot": D.descMot=decodeURIComponent(arg); renderFoot(); break;
+    case "cancelDesc": D.desc=false; renderFoot(); break;
+    case "confDesc": {
+      if(!D.descMot){ D.msg.desc="Escolha o motivo."; renderFoot(); return; }
+      const tx=(D.descTxt||"").trim(); if(D.descMot==="outro"&&!tx){ D.msg.desc="Escreva o motivo em “Outro”."; renderFoot(); return; }
+      edit("status","descartado"); edit("motivoDescarte",D.descMot); edit("motivoTexto",tx||null); edit("descartadoEm",new Date().toISOString()); edit("descartadoPor",myId,"Descartou: "+D.descMot+(tx?" — "+tx:""));
+      D.desc=false; flush(); renderDrawer(); break; }
+    case "reabrir": reabrir(); break;
+  }
+}
+$("#drawerRoot").addEventListener("click",onDrawerClick);
+function reabrir(){ const w=D.work; edit("status",statusDaColuna(w.coluna,w)); edit("motivoDescarte",null); edit("motivoTexto",null); edit("descarteAuto",null); edit("reabertoEm",new Date().toISOString(),"Reabriu o imóvel em “"+colDe(w.coluna).t+"”"); flush(); renderDrawer(); }
+function registrarResultado(){
+  const w=D.work, r=w.resultado||{};
+  let err="";
+  if(r.tipo==="arrematado"){ if(!(+r.valor>0)) err="Informe o valor da arrematação."; else if(!(w.habilitacao||{}).aprovada) err="Marque a habilitação como aprovada na aba Leilão (etapa obrigatória)."; }
+  if(r.tipo==="suspenso"&&!String(r.motivo||"").trim()) err="Informe o motivo da suspensão.";
+  if(err){ D.msg.res=err; renderTab(); return; }
+  delete D.msg.res;
+  if(!r.data) edit("resultado.data",todayISO());
+  edit("resultado.registradoEm",new Date().toISOString()); edit("resultado.registradoPor",myId);
+  const txt=r.tipo==="arrematado"?"Arrematado por "+fR(+r.valor):r.tipo==="nao_arrematado"?"Não arrematado"+(+r.vencedor>0?" · lance vencedor "+fR(+r.vencedor):" (foi para o Histórico)"):"Suspenso: "+r.motivo;
+  edit("coluna",4); edit("status",r.tipo,"Resultado: "+txt);
+  flush(); closeCard(); go("oportunidades");
+}
+/* Custos → Calculadora → volta ao card */
+function abrirCalcDoCard(id){
+  const c=(D&&D.id===id)?D.work:cards.get(id); if(!c) return;
+  flush(); closeCard(); go("calculadora"); cvInit(); cvCards();
+  CV.retorno=id;
+  const s=simOf(c);
+  if(s){ cvOpen(s); $("#cvCard").value=id; cvMark(); } else { CV.curId=null; CV.calc.set(calcDoCard(c)); $("#cvCard").value=id; CV.saved=""; cvMark(); cvList(); }
+  cvBanner(); window.scrollTo(0,0);
+}
+function cvBanner(){
+  const el=$("#cvRet"); if(!el) return; const id=$("#cvCard").value; const c=id&&cards.get(id);
+  $("#cvPull").hidden=!c;
+  if(CV.retorno&&cards.get(CV.retorno)){ el.hidden=false; $("#cvRetTxt").textContent="Calculando para: "+titulo(cards.get(CV.retorno)); $("#cvSave").textContent="Salvar e voltar ao card"; }
+  else { el.hidden=true; $("#cvSave").textContent="Salvar"; }
+}
+/* arquivos (capability assets) */
+function pickFiles(target,multi){
+  if(!assets){ setSave("Envio de arquivos indisponível para o seu acesso."); return; }
+  D.fileTarget=target; const fi=$("#fileIn"); fi.multiple=!!multi; fi.accept=target.kind==="foto"?"image/*":""; fi.value=""; fi.click();
+}
+async function onFiles(e){
+  const files=[...e.target.files]; if(!files.length||!D) return; const d=D, t=d.fileTarget; setSave("Enviando "+files.length+" arquivo(s)…");
+  const ok=[];
+  for(const f of files){ try{ const r=await assets.upload(f); ok.push({id:r.id,nome:f.name,em:new Date().toISOString(),por:myId}); }catch(err){ setSave("Falha ao enviar "+f.name+(err&&err.message?": "+err.message:"")); } }
+  if(D!==d||!ok.length) return;
+  if(t.kind==="foto") edit("fotos",(d.work.fotos||[]).concat(ok),"Enviou "+ok.length+" foto(s)");
+  else if(t.kind==="arq") edit("arquivos",(d.work.arquivos||[]).concat(ok.map(x=>Object.assign(x,{tipo:/edital/i.test(x.nome)?"Edital":/matr/i.test(x.nome)?"Matrícula":/laudo/i.test(x.nome)?"Laudo":"Outro"}))),"Enviou "+ok.map(x=>x.nome).join(", "));
+  else if(t.kind==="anexo") edit("juridico."+t.key+".anexo",ok[0],"Anexou "+ok[0].nome+" ao jurídico ("+t.key+")");
+  flush(); renderTab();
+}
+
+/* =================== Calculadora (menu) =================== */
+let CV=null;
+function cvInit(){
+  if(CV) return; const root=$("#v-calculadora");
+  root.innerHTML=`<header class="ctop"><div><h1>Calculadora de Arremate</h1><div class="sub">Corte de <span id="cvCut"></span> de lucro líquido · padrões: giro <span id="cvGiro"></span> meses, reforma <span id="cvRef"></span></div></div>
+    <div class="bar"><span class="save-state" id="cvState"></span><button type="button" id="cvNew">Nova</button><button type="button" id="cvDup">Duplicar</button><button type="button" id="cvDel" class="danger">Excluir</button><button type="button" id="cvSave" class="pri">Salvar</button></div></header>
+    <div class="card" style="padding:10px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span class="lbl">Imóvel vinculado</span><div class="in" style="flex:1;min-width:200px;max-width:520px"><select id="cvCard" aria-label="Imóvel vinculado"></select></div><button type="button" class="sm" id="cvPull" hidden>Puxar dados da análise</button><button type="button" class="sm" id="cvOpenCard">Abrir imóvel</button><span class="hint">Ao salvar, o ROI e o lance máximo vão para o card.</span></div>
+    <div id="cvRet" class="alert gray" hidden style="margin-bottom:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><b id="cvRetTxt"></b><span class="hint">Ao salvar, você volta para o card com o resultado.</span><button type="button" class="sm" id="cvBack" style="margin-left:auto">Voltar ao card sem salvar</button></div>
+    <div id="cvConfirm" class="card" hidden style="padding:12px 16px;margin-bottom:16px"><div class="bar"><span id="cvConfirmTxt"></span><button type="button" id="cvYes" class="danger">Excluir</button><button type="button" id="cvNo">Cancelar</button></div></div>
+    <div id="cvHost"></div>`;
+  CV={curId:null,saved:"",calc:null};
+  CV.calc=Calc($("#cvHost"),"cv-",{onChange:()=>cvMark()});
+  CV.calc.slot.innerHTML=`<section class="card"><div class="sec"><h2>Simulações salvas <small id="cvCount"></small></h2></div><div class="sims" id="cvList"></div></section>`;
+  CV.calc.set(defaultsCfg());
+  setTimeout(()=>{ if(CV&&!CV.curId&&!CV.retorno&&sims.length){ let last=null; try{ last=localStorage.getItem("ultimaSim"); }catch(e){} cvOpen(sims.find(x=>x.id===last)||sims[0]); } },0);
+  $("#cvNew").addEventListener("click",()=>{ CV.curId=null; CV.calc.set(defaultsCfg()); $("#cvCard").value=""; CV.saved=""; cvMark(); cvList(); });
+  $("#cvDup").addEventListener("click",()=>{ const p=CV.calc.get(); p.nome=(p.nome||"Simulação")+" (cópia)"; CV.curId=null; CV.calc.set(p); $("#cvCard").value=""; CV.saved=""; cvMark(); cvList(); });
+  $("#cvSave").addEventListener("click",cvSave);
+  $("#cvDel").addEventListener("click",()=>{ if(!CV.curId) return; $("#cvConfirmTxt").textContent="Excluir “"+(CV.calc.get().nome||"Sem nome")+"”? Isso não pode ser desfeito."; $("#cvConfirm").hidden=false; });
+  $("#cvNo").addEventListener("click",()=>{ $("#cvConfirm").hidden=true; });
+  $("#cvYes").addEventListener("click",async()=>{
+    $("#cvConfirm").hidden=true; if(!db||!CV.curId) return; const id=CV.curId;
+    try{ await db.collection("simulacoes").doc(id).delete(); }catch(e){ $("#cvState").textContent="Não foi possível excluir."; return; }
+    for(const c of cards.values()) if(c.simulacaoId===id) db.collection("cards").doc(c.id).update({simulacaoId:null,roiLiquido:null,lanceMaximo:null,atualizadoEm:new Date().toISOString(),atualizadoPor:myId}).catch(()=>{});
+    sims=sims.filter(s=>s.id!==id); CV.curId=null; CV.calc.set(defaultsCfg()); CV.saved=""; cvMark(); cvList();
+  });
+  $("#cvCard").addEventListener("change",()=>{ cvMark(); cvBanner(); });
+  $("#cvPull").addEventListener("click",()=>{ const c=cards.get($("#cvCard").value); if(!c) return; const p=CV.calc.get(), f=calcDoCard(c); for(const k of ["lance","venda","debitos","condominio","iptu","itbi","tipo","leiloeiro","escritura","nome","cidade","link"]) p[k]=f[k]; CV.calc.set(p); cvMark(); });
+  $("#cvBack").addEventListener("click",()=>{ const id=CV.retorno; CV.retorno=null; cvBanner(); go("oportunidades"); if(id) openCard(id,"custos"); });
+  $("#cvOpenCard").addEventListener("click",()=>{ const id=$("#cvCard").value; if(id&&cards.has(id)){ go("oportunidades"); openCard(id,"custos"); } });
+}
+function cvSnap(){ return JSON.stringify(CV.calc.get())+"|"+$("#cvCard").value; }
+function cvMark(){
+  if(!CV) return; const dirty=cvSnap()!==CV.saved;
+  $("#cvState").textContent=!db?"Salvamento indisponível nesta visualização":dirty?(CV.curId?"Alterações não salvas":"Não salva"):(CV.curId?"Salva":"");
+  $("#cvDel").hidden=!CV.curId; $("#cvDup").hidden=!CV.curId; $("#cvSave").hidden=!db;
+  $("#cvOpenCard").hidden=!$("#cvCard").value;
+  $("#cvCut").textContent=CFG.corteLiquido+"%"; $("#cvGiro").textContent=CFG.giro; $("#cvRef").textContent=fR(+CFG.reforma);
+}
+function cvCards(){
+  const cur=$("#cvCard").value; const list=[...cards.values()].filter(c=>c.status!=="descartado").sort((a,b)=>titulo(a).localeCompare(titulo(b)));
+  $("#cvCard").innerHTML=`<option value="">Sem vínculo</option>`+list.map(c=>`<option value="${esc(c.id)}">${esc(titulo(c)+(c.predio?" · "+c.predio:"")+" — "+colDe(c.coluna).t)}</option>`).join("");
+  $("#cvCard").value=list.some(c=>c.id===cur)?cur:"";
+}
+function cvList(){
+  if(!CV) return; const box=$("#cvList");
+  $("#cvCount").textContent=sims.length?sims.length+" imóveis":"";
+  if(!db){ box.innerHTML='<div class="empty">Abra a calculadora pelo link do Claude para salvar simulações.</div>'; return; }
+  if(!sims.length){ box.innerHTML='<div class="empty">Nenhuma simulação salva ainda. Preencha o imóvel e toque em <b>Salvar</b>.</div>'; return; }
+  box.innerHTML="";
+  for(const s of sims){
+    const p=simParams(s), r=calc(p,p.lance,p.giro); const card=s.cardId&&cards.get(s.cardId);
+    const b=document.createElement("button"); b.type="button"; b.className="sim"; b.setAttribute("aria-current",String(s.id===CV.curId));
+    const t=document.createElement("div"); const t1=document.createElement("div"); t1.className="t"; t1.textContent=s.nome||"Sem nome";
+    const t2=document.createElement("div"); t2.className="c"; t2.textContent=(s.cidade||"—")+" · lance "+fK(s.lance)+" · "+s.giro+"m"+(card?" · vinculada ao card":"");
+    t.append(t1,t2); const ch=document.createElement("span"); ch.className="chip "+cls(r.roi,(s.minimo??30)/100); ch.textContent=fP(r.roi);
+    b.append(t,ch); b.addEventListener("click",()=>cvOpen(s)); box.append(b);
+  }
+}
+function cvOpen(s){ setTimeout(()=>cvBanner(),0); CV.curId=s.id; CV.calc.set(simParams(s)); cvCards(); $("#cvCard").value=s.cardId&&cards.has(s.cardId)?s.cardId:""; CV.saved=cvSnap(); cvMark(); cvList(); try{ localStorage.setItem("ultimaSim",s.id); }catch(e){} }
+function cvOpenById(id){ cvInit(); const s=sims.find(x=>x.id===id); if(s) cvOpen(s); }
+async function cvSave(){
+  if(!db) return; const p=CV.calc.get(); const cardId=$("#cvCard").value||null;
+  const body=Object.assign({},p,{cardId,atualizadoEm:new Date().toISOString()});
+  const prev=CV.curId?sims.find(s=>s.id===CV.curId):null;
+  $("#cvState").textContent="Salvando…";
+  try{
+    if(CV.curId) await db.collection("simulacoes").doc(CV.curId).set(body); else { const ref=await db.collection("simulacoes").add(body); CV.curId=ref.id; }
+    const id=CV.curId, i=sims.findIndex(s=>s.id===id), o=Object.assign({id},body); if(i>=0) sims[i]=o; else sims.unshift(o);
+    const ts=new Date().toISOString(), r=calc(p,p.lance,p.giro), mx=lanceMax(p,p.giro);
+    if(cardId){ const logx=logPatch(["Vinculou/atualizou o cálculo na Calculadora: ROI "+fP(r.roi)+", lance máximo "+fR(mx)],ts,myId);
+      await db.collection("cards").doc(cardId).update({simulacaoId:id,roiLiquido:isFinite(r.roi)?+r.roi.toFixed(4):null,lanceMaximo:isFinite(mx)?mx:null,atualizadoEm:ts,atualizadoPor:myId,logx}); }
+    if(prev&&prev.cardId&&prev.cardId!==cardId){ const oc=cards.get(prev.cardId); if(oc&&oc.simulacaoId===id) await db.collection("cards").doc(prev.cardId).update({simulacaoId:null,roiLiquido:null,lanceMaximo:null,atualizadoEm:ts,atualizadoPor:myId}); }
+    if(cardId){ const c=cards.get(cardId); if(c) Object.assign(c,{simulacaoId:id,roiLiquido:isFinite(r.roi)?+r.roi.toFixed(4):null,lanceMaximo:isFinite(mx)?mx:null}); }
+    CV.saved=cvSnap(); cvMark(); cvList(); try{ localStorage.setItem("ultimaSim",id); }catch(e){}
+    if(CV.retorno){ const back=CV.retorno; CV.retorno=null; cvBanner(); go("oportunidades"); openCard(back,"custos"); }
+  }catch(e){ $("#cvState").textContent=e&&e.code==="quota_exceeded"?"Limite de armazenamento atingido. Exclua simulações antigas.":"Não foi possível salvar. Tente de novo."; }
+}
+
+/* =================== Descartados =================== */
+let fDesc="";
+function renderDescartados(){
+  const root=$("#v-descartados");
+  const all=[...cards.values()].filter(c=>c.status==="descartado").sort((a,b)=>String(b.descartadoEm||"").localeCompare(String(a.descartadoEm||"")));
+  const q=norm(($("#dq")||{}).value||"");
+  const list=all.filter(c=>(!fDesc||c.motivoDescarte===fDesc)&&(!q||norm([titulo(c),c.endereco,c.predio,c.motivoTexto].join(" ")).includes(q)));
+  const cnt=m=>all.filter(c=>c.motivoDescarte===m).length;
+  const keepQ=($("#dq")||{}).value||"";
+  root.innerHTML=`<div class="toolbar"><div class="l"><h2 style="font-size:18px">Descartados</h2><span class="muted">${all.length} imóvel(is)</span></div><label class="search"><input id="dq" type="search" placeholder="Buscar" aria-label="Buscar descartados" value="${esc(keepQ)}"></label></div>
+   <div class="chips" style="margin-bottom:12px"><button type="button" class="chipf" data-dm="" aria-pressed="${!fDesc}">Todos (${all.length})</button>${MOTIVOS.map(m=>`<button type="button" class="chipf" data-dm="${esc(m)}" aria-pressed="${fDesc===m}">${cap(m)} (${cnt(m)})</button>`).join("")}</div>
+   <div class="list">${list.map(c=>{ const m=mercado(c); return `<div class="item"><div class="r1"><span class="tt">${esc(titulo(c))}</span><span class="selo gray">${esc(c.motivoDescarte||"—")}</span></div>
+     <div class="hint">${esc([c.tipoLeilao,c.modalidade,subt(c)].filter(Boolean).join(" · "))}</div>
+     <div class="hint">${c.motivoTexto?esc(c.motivoTexto)+" · ":""}Descartado ${c.descartadoEm?fD(c.descartadoEm):""}${c.descarteAuto?" (automático)":""} · estava em ${esc(colDe(c.coluna).t)} · margem bruta ${fP(m.margem)} · última praça ${ultimaPraca(c)?fD(ultimaPraca(c).data):"—"}</div>
+     <div class="bar"><button type="button" class="sm" data-dopen="${esc(c.id)}">Abrir</button><button type="button" class="sm danger" data-dexc="${esc(c.id)}">Excluir</button></div></div>`; }).join("")||`<div class="empty">${all.length?"Nenhum descartado com esse filtro.":"Nenhum imóvel descartado. Imóveis cuja última praça passou vão sozinhos para o Histórico (“Prazo encerrado”)."}</div>`}</div>`;
+  const dq=$("#dq"); dq.addEventListener("input",()=>{ const pos=dq.selectionStart; renderDescartados(); const n=$("#dq"); n.focus(); try{ n.setSelectionRange(pos,pos); }catch(e){} });
+}
+$("#v-descartados").addEventListener("click",e=>{ const f=e.target.closest("[data-dm]"); if(f){ fDesc=f.dataset.dm; renderDescartados(); return; } const o=e.target.closest("[data-dopen]"); if(o) openCard(o.dataset.dopen); const x=e.target.closest("[data-dexc]"); if(x) confirmExcluir(x.dataset.dexc); });
+
+/* =================== Histórico =================== */
+let fHist="", hOpen=new Set();
+const H_L={vendido:"Arrematado · vendido",nao_vendido:"Arrematado · não vendido",arrematado:"Arrematado",nao_arrematado:"Não arrematado",suspenso:"Suspenso",encerrado:"Prazo encerrado"};
+const H_C={vendido:"green",nao_vendido:"blue",arrematado:"green",nao_arrematado:"gray",suspenso:"yel",encerrado:"gray"};
+function histRows(){
+  const rows=hist.map(h=>({k:"h",id:h.id,data:h.dataLeilao||"",titulo:h.titulo||"",cidade:h.cidade||"",tipo:h.tipoLeilao?cap(h.tipoLeilao):"",status:h.status,valor:+h.ultimoLance||+h.valorMinimo||NaN,valorLbl:+h.ultimoLance?"último lance":+h.valorMinimo?"valor mínimo":"",teto:NaN,p25:NaN,origem:"Trello",link:h.trello,raw:h}));
+  for(const c of cards.values()){ if(!["arrematado","nao_arrematado","suspenso","encerrado"].includes(c.status)) continue; const r=c.resultado||{}; const m=mercado(c); const enc=c.status==="encerrado", up=ultimaPraca(c);
+    rows.push({k:"c",id:c.id,data:enc?((up&&up.data)||String(c.encerradoEm||"").slice(0,10)):(r.data||""),titulo:titulo(c)+(c.predio?" · "+c.predio:""),cidade:c.cidade||"",tipo:c.tipoLeilao||"",status:c.status,valor:c.status==="arrematado"?+r.valor:c.status==="nao_arrematado"?(+r.vencedor>0?+r.vencedor:NaN):NaN,valorLbl:c.status==="arrematado"?"arrematação":c.status==="nao_arrematado"?"lance vencedor":"",teto:+c.precoTeto||NaN,p25:m.p25,origem:c.origem||"Quadro",raw:c}); }
+  return rows.sort((a,b)=>String(b.data).localeCompare(String(a.data)));
+}
+function renderHistorico(){
+  const root=$("#v-historico"); const all=histRows(); const list=all.filter(r=>!fHist||r.status===fHist);
+  const cnt=s=>all.filter(r=>r.status===s).length;
+  const na=all.filter(r=>r.status==="nao_arrematado"&&isFinite(r.valor)&&isFinite(r.p25));
+  const calib=na.length?`<div class="alert gray">Calibração: nos ${na.length} não arrematado(s) com P25, o lance vencedor ficou em média em <b>${fP(na.reduce((a,r)=>a+r.valor/r.p25,0)/na.length)}</b> do P25 (margem bruta do vencedor ≈ ${fP(na.reduce((a,r)=>a+(r.p25/r.valor-1),0)/na.length)}).</div>`:"";
+  const det=h=>{ const skip=new Set(["id","titulo","status","trello","origem","atualizadoEm","detalhes"]); const L={tipoLeilao:"Tipo",modalidade:"Modalidade",pagamento:"Pagamento",dataLeilao:"Data",endereco:"Endereço",cidade:"Cidade",areaPrivativa:"Área privativa (m²)",areaTotal:"Área total (m²)",quartos:"Quartos",vagas:"Vagas",matricula:"Matrícula",numeroCaixa:"Nº Caixa",avaliacao:"Avaliação",valorMinimo:"Valor mínimo",lanceInicial:"Lance inicial",ultimoLance:"Último lance",leiloeiro:"Leiloeiro",debitos:"Débitos",alerta:"Alerta",situacao:"Situação",onus:"Ônus",indiceCadastral:"Índice cadastral",tipoImovel:"Tipo do imóvel",condominioMensal:"Condomínio/mês",iptuAnual:"IPTU/ano",resumo:"Resumo"};
+    const mon=new Set(["avaliacao","valorMinimo","lanceInicial","ultimoLance","condominioMensal","iptuAnual"]);
+    return Object.keys(h).filter(k=>!skip.has(k)&&h[k]!=null&&h[k]!=="").map(k=>`<div><span class="lbl">${esc(L[k]||k)}</span> ${esc(mon.has(k)?fR(+h[k]):k==="dataLeilao"?fD(h[k]):String(h[k]))}</div>`).join(""); };
+  root.innerHTML=`<div class="toolbar"><div class="l"><h2 style="font-size:18px">Histórico</h2><span class="muted">${all.length} registro(s)</span></div></div>
+   <div class="chips" style="margin-bottom:12px"><button type="button" class="chipf" data-hf="" aria-pressed="${!fHist}">Todos (${all.length})</button>${Object.keys(H_L).map(k=>`<button type="button" class="chipf" data-hf="${k}" aria-pressed="${fHist===k}">${H_L[k]} (${cnt(k)})</button>`).join("")}</div>
+   ${calib}
+   <div class="card tw" style="margin-top:12px"><table><thead><tr><th>Data</th><th class="tx">Imóvel</th><th class="tx">Cidade</th><th class="tx">Tipo</th><th class="tx">Situação</th><th>Valor</th><th>Teto</th><th class="tx">Origem</th></tr></thead><tbody>
+   ${list.map(r=>`<tr class="click" data-hr="${esc(r.k+":"+r.id)}"><td>${fD(r.data)}</td><td class="tx wrapc">${esc(r.titulo)}</td><td class="tx">${esc(r.cidade)}</td><td class="tx">${esc(r.tipo)}</td><td class="tx"><span class="selo ${H_C[r.status]||"gray"}">${esc(H_L[r.status]||r.status)}</span></td><td>${isFinite(r.valor)?fR(r.valor)+`<div class="hint">${r.valorLbl}</div>`:"—"}</td><td>${isFinite(r.teto)?fR(r.teto):"—"}</td><td class="tx">${r.k==="h"?extLink(r.link,"Trello"):`<button type="button" class="link sm" data-hopen="${esc(r.id)}">abrir card</button>`}</td></tr>
+     ${r.k==="h"&&hOpen.has(r.id)?`<tr><td colspan="8" class="tx" style="white-space:normal;position:static"><div style="display:grid;gap:3px;padding:4px 0;font-size:12.5px">${det(r.raw)}</div></td></tr>`:""}`).join("")||`<tr><td colspan="8" class="tx" style="position:static">${db?"Nenhum registro com esse filtro.":"Abra esta página pelo link do Claude para ver o histórico."}</td></tr>`}
+   </tbody></table></div>
+   <p class="hint">Linhas do Trello: toque para ver os detalhes. O texto completo continua no link.</p>`;
+}
+$("#v-historico").addEventListener("click",e=>{
+  const f=e.target.closest("[data-hf]"); if(f){ fHist=f.dataset.hf; renderHistorico(); return; }
+  const o=e.target.closest("[data-hopen]"); if(o){ openCard(o.dataset.hopen); return; }
+  if(e.target.closest("a")) return;
+  const r=e.target.closest("[data-hr]"); if(!r) return; const [k,id]=r.dataset.hr.split(/:(.*)/s);
+  if(k==="c") openCard(id); else { hOpen.has(id)?hOpen.delete(id):hOpen.add(id); renderHistorico(); }
+});
+
+/* =================== Padrões =================== */
+$("#btnCfg").addEventListener("click",()=>{
+  const it=Object.entries(CFG.itbi||{}).map(([k,v])=>k+" = "+String(v).replace(".",",")).join("\n");
+  const ct=tabCart().map(([l,v])=>n2.format(l)+" = "+n2.format(v)).join("\n");
+  $("#dlgRoot").innerHTML=`<div class="dlg" data-x="1"><section class="box" role="dialog" aria-modal="true" aria-label="Padrões"><div class="hd"><h2>Padrões da análise</h2><small>valem para os dois</small></div><div class="bd">
+    <div class="fields">
+      <label class="f">Corte de margem bruta<div class="in"><input id="cfB" class="n" value="${esc(CFG.corteBruto)}"><span>%</span></div></label>
+      <label class="f">Corte de ROI líquido<div class="in"><input id="cfL" class="n" value="${esc(CFG.corteLiquido)}"><span>%</span></div></label>
+      <label class="f">Giro de venda<div class="in"><input id="cfG" class="n" value="${esc(CFG.giro)}"><span>meses</span></div></label>
+      <label class="f">Reforma<div class="in"><span>R$</span><input id="cfR" class="n" value="${esc(n2.format(+CFG.reforma||0))}"></div></label>
+      <label class="f">ITBI padrão<div class="in"><input id="cfI" class="n" value="${esc(String(CFG.itbiPadrao).replace(".",","))}"><span>%</span></div><div class="hint">Cidades sem alíquota confirmada</div></label>
+      <label class="f full">ITBI por cidade<div class="in"><textarea id="cfIt" placeholder="Belo Horizonte = 3">${esc(it)}</textarea></div><div class="hint">Uma cidade por linha: Cidade = alíquota</div></label>
+      <label class="f full">Tabela de cartório (registro e escritura)<div class="in"><textarea id="cfCt" style="min-height:140px">${esc(ct)}</textarea></div><div class="hint">Uma faixa por linha: valor do imóvel até = emolumento (R$). Atualize quando o TJMG publicar a tabela do ano. Apague tudo para voltar à tabela TJMG 2026.</div></label>
+    </div>
+    <div class="hint">Os padrões entram nos cálculos novos. Cálculos já salvos mantêm os próprios valores.</div>
+    <div class="bar" style="justify-content:flex-end"><span class="save-state" id="cfSt"></span><button type="button" id="cfNo">Cancelar</button><button type="button" class="pri" id="cfOk"${db?"":" disabled"}>Salvar padrões</button></div>
+  </div></section></div>`;
+  const close=()=>{ $("#dlgRoot").innerHTML=""; };
+  $("#cfNo").addEventListener("click",close);
+  $(".dlg").addEventListener("click",e=>{ if(e.target.dataset.x) close(); });
+  $("#cfOk").addEventListener("click",async()=>{
+    const itbi={}; for(const ln of $("#cfIt").value.split("\n")){ const m=ln.split("="); if(m.length===2&&m[0].trim()) itbi[m[0].trim()]=parseNum(m[1]); }
+    const cart=[]; for(const ln of $("#cfCt").value.split("\n")){ const m=ln.split("="); if(m.length===2){ const l=parseNum(m[0]), v=parseNum(m[1]); if(l>0&&v>0) cart.push({ate:l,valor:v}); } }
+    cart.sort((a,b)=>a.ate-b.ate);
+    const igualTJMG=cart.length===MG.length&&cart.every((x,i)=>x.ate===MG[i][0]&&x.valor===MG[i][1]);
+    const data={cartorio:cart.length&&!igualTJMG?cart:null,corteBruto:parseNum($("#cfB").value)||60,corteLiquido:parseNum($("#cfL").value)||30,giro:Math.max(1,Math.round(parseNum($("#cfG").value)))||12,reforma:parseNum($("#cfR").value),itbiPadrao:parseNum($("#cfI").value)||2,itbi,atualizadoEm:new Date().toISOString(),atualizadoPor:myId};
+    try{ await db.doc("config/padroes").set(data); CFG=Object.assign(clone(CFG_DEF),data); close(); renderAll(); }catch(e){ $("#cfSt").textContent="Não foi possível salvar. Verifique sua permissão."; }
+  });
+});
+
+/* =================== menu ⋯ do card: abrir, estudar, descartar, excluir =================== */
+let menuBtn=null;
+function closeMenu(){ const p=$(".pop"); if(p) p.remove(); if(menuBtn){ menuBtn.setAttribute("aria-expanded","false"); menuBtn=null; } }
+function showMenu(btn,id,inDrawer){
+  const was=menuBtn===btn; closeMenu(); if(was) return;
+  const c=(D&&D.id===id)?D.work:cards.get(id); if(!c) return;
+  const it=[];
+  if(!inDrawer) it.push(["abrir","Abrir e editar"]);
+  if(c.status!=="descartado"&&c.coluna===0) it.push(["estudar","Estudar a fundo →"]);
+  if(c.status!=="descartado"&&c.coluna<4) it.push(["descartar","Descartar…"]);
+  if(c.status==="descartado"||c.status==="encerrado") it.push(["reabrir","Reabrir"]);
+  it.push(["sep"]); it.push(["excluir","Excluir…",true]);
+  const pop=document.createElement("div"); pop.className="pop"; pop.setAttribute("role","menu");
+  pop.innerHTML=it.map(([k,t,d])=>k==="sep"?'<div class="sep"></div>':`<button type="button" role="menuitem" data-mi="${k}"${d?' class="danger"':""}>${esc(t)}</button>`).join("");
+  document.body.append(pop); menuBtn=btn; btn.setAttribute("aria-expanded","true");
+  const r=btn.getBoundingClientRect(), w=pop.offsetWidth, h=pop.offsetHeight;
+  let left=Math.min(r.right-w,innerWidth-w-8); left=Math.max(8,left);
+  let top=r.bottom+4; if(top+h>innerHeight-8) top=Math.max(8,r.top-h-4);
+  pop.style.left=left+"px"; pop.style.top=top+"px";
+  const first=pop.querySelector("button"); if(first) first.focus();
+  pop.addEventListener("click",e=>{ const b=e.target.closest("[data-mi]"); if(!b) return; const k=b.dataset.mi; closeMenu(); menuAcao(k,id); });
+}
+document.addEventListener("click",e=>{ if($(".pop")&&!e.target.closest(".pop")&&!e.target.closest("[data-menu],[data-act='menu']")) closeMenu(); },true);
+window.addEventListener("resize",closeMenu);
+document.addEventListener("scroll",closeMenu,true);
+function menuAcao(k,id){
+  if(k==="abrir"){ openCard(id); return; }
+  if(k==="excluir"){ confirmExcluir(id); return; }
+  if(!D||D.id!==id) openCard(id);
+  if(!D) return;
+  if(k==="estudar") mover(1);
+  if(k==="descartar"){ D.desc=true; D.descMot=""; D.descTxt=""; D.msg.desc=""; renderFoot(); }
+  if(k==="reabrir") reabrir();
+}
+function confirmExcluir(id){
+  const c=(D&&D.id===id)?D.work:cards.get(id); if(!c) return;
+  const temSim=!!(c.simulacaoId||sims.some(s=>s.cardId===id));
+  $("#dlgRoot").innerHTML=`<div class="dlg" data-x="1"><section class="box" role="alertdialog" aria-modal="true" aria-label="Excluir imóvel"><div class="hd"><h2>Excluir “${esc(titulo(c))}”?</h2></div><div class="bd">
+    <div>O card some do quadro e apaga junto os dados, comentários, arquivos anexados ao card e o histórico de alterações${temSim?", além do cálculo de custos vinculado":""}. <b>Não dá para desfazer.</b></div>
+    <div class="hint">Para só tirar do quadro e manter o registro, use “Descartar”.</div>
+    ${db?"":`<div class="alert yel">Abra a página pelo link do Claude para excluir.</div>`}
+    <div class="bar" style="justify-content:flex-end"><span class="save-state" id="exSt"></span><button type="button" id="exNo">Cancelar</button><button type="button" class="pri" id="exYes" style="background:var(--bad);border-color:var(--bad)"${db?"":" disabled"}>Excluir de vez</button></div>
+  </div></section></div>`;
+  const close=()=>{ $("#dlgRoot").innerHTML=""; };
+  $("#exNo").addEventListener("click",close); $("#exNo").focus();
+  $(".dlg").addEventListener("click",e=>{ if(e.target.dataset.x) close(); });
+  $("#exYes").addEventListener("click",async()=>{
+    $("#exSt").textContent="Excluindo…";
+    try{
+      if(D&&D.id===id){ clearTimeout(D.timer); D.dirty.clear(); D.logs=[]; D=null; $("#drawerRoot").innerHTML=""; }
+      await db.collection("cards").doc(id).delete();
+      const sIds=new Set(sims.filter(s=>s.cardId===id).map(s=>s.id)); if(c.simulacaoId) sIds.add(c.simulacaoId);
+      for(const sid of sIds){ try{ await db.collection("simulacoes").doc(sid).delete(); }catch(e){} }
+      sims=sims.filter(s=>!sIds.has(s.id)); if(CV&&sIds.has(CV.curId)){ CV.curId=null; CV.saved=""; }
+      cards.delete(id); close(); renderAll();
+    }catch(e){ $("#exSt").textContent=e&&e.code==="invalid_argument"?"Sem permissão para excluir.":"Não foi possível excluir. Tente de novo."; }
+  });
+}
+
+
+/* =================== base de m² por bairro =================== */
+/* Doc em "m2": {cidade,bairro,tipo,m2,n,min,max,fontes:[{link,valor,area}],pesquisadoEm:"AAAA-MM-DD",historico:[{data,m2}],origem,obs}
+   Validade: 90 dias. Margem na faixa de dúvida (50% a 70%): reconferir se tiver mais de 30 dias.
+   Variação acima de 10% numa revisão: o bairro passa a valer 30 dias (campo validadeDias). */
+const M2_VALIDADE=90, M2_DUVIDA=30, M2_AVISO=15;
+let m2rows=[], fM2="", qM2=""; loaded.m2=false;
+function m2Tipo(t){ const n=norm(t); if(!n) return ""; if(n.startsWith("apart")) return "Apartamento"; if(n.startsWith("casa")||n.startsWith("sobrado")) return "Casa"; if(n.startsWith("terr")||n.startsWith("lote")) return "Terreno"; if(/sala|loja|comerc|galp/.test(n)) return "Comercial"; return "Outro"; }
+function m2Slug(cidade,bairro,tipo){ const sl=x=>norm(x).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); return sl(cidade)+"__"+sl(bairro)+"__"+sl(tipo); }
+function m2Dias(r){ if(!r.pesquisadoEm) return Infinity; const [y,m,d]=String(r.pesquisadoEm).slice(0,10).split("-").map(Number); const a=new Date(y,m-1,d), t=new Date(); t.setHours(0,0,0,0); return Math.round((t-a)/864e5); }
+function m2Val(r){ return (r.validadeDias===0||r.validadeDias==="0")?-1:(+r.validadeDias||M2_VALIDADE); }
+function m2Status(r){ const d=m2Dias(r), v=m2Val(r); if(!isFinite(d)||d>v) return "vencido"; if(d>v-M2_AVISO) return "vence"; return "valido"; }
+const M2_L={valido:"Válido",vence:"Vence em breve",vencido:"Vencido"}, M2_C={valido:"green",vence:"yel",vencido:"red"};
+function m2Var(r){ const h=(r.historico||[]).filter(x=>+x.m2>0); if(h.length<2) return NaN; const a=+h[h.length-2].m2, b=+h[h.length-1].m2; return b/a-1; }
+function m2Do(c){ const t=m2Tipo(c.tipoImovel); if(!c.cidade||!c.bairro||!t) return null; return m2rows.find(r=>r.id===m2Slug(c.cidade,c.bairro,t))||null; }
+function m2RefCard(c){
+  const r=m2Do(c); if(!r) return "";
+  const st=m2Status(r), d=m2Dias(r), area=+c.areaPrivativa||0, l=lanceRef(c);
+  const v=area>0&&+r.m2>0?r.m2*area:NaN, mg=isFinite(v)&&l>0?v/l-1:NaN;
+  return `<div class="m2ref"><b>Base de m² do bairro:</b> ${fR(+r.m2)}/m² (${esc(r.tipo)}, ${+r.n||0} fonte(s), pesquisado em ${fD(r.pesquisadoEm)}) <span class="selo ${M2_C[st]}">${M2_L[st]}${isFinite(d)?" · "+d+" dia(s)":""}</span>${isFinite(v)?` · Pela base: venda ${fK(v)}, margem ${fP(mg)}`:""}<div class="hint">A base serve para a triagem. A decisão usa as fontes deste card.</div></div>`;
+}
+function renderM2(){
+  const root=$("#v-m2"); if(!root) return;
+  const all=m2rows.slice().sort((a,b)=>(a.cidade||"").localeCompare(b.cidade||"")||(a.bairro||"").localeCompare(b.bairro||"")||(a.tipo||"").localeCompare(b.tipo||""));
+  const cnt=k=>all.filter(r=>m2Status(r)===k).length;
+  const q=norm(qM2);
+  const list=all.filter(r=>(!fM2||m2Status(r)===fM2)&&(!q||norm([r.cidade,r.bairro,r.tipo].join(" ")).includes(q)));
+  const cidades=new Set(all.map(r=>r.cidade)).size;
+  root.innerHTML=`<div class="toolbar"><div class="l"><h2 style="font-size:18px">Base de m² por bairro</h2><span class="muted">${all.length} bairro(s) · ${cidades} cidade(s)</span>${canWrite&&db?`<button type="button" class="pri sm" data-m2novo="1">+ Novo bairro</button>`:""}</div>
+    <label class="search"><input id="qM2" type="search" placeholder="Buscar cidade, bairro, tipo…" aria-label="Buscar na base" value="${esc(qM2)}"></label></div>
+   <div class="m2st"><span>Validade: <b>${M2_VALIDADE} dias</b></span><span>Margem entre 50% e 70%: reconfere se tiver mais de <b>${M2_DUVIDA} dias</b></span><span>Mudou mais de 10% numa revisão: o bairro passa a valer <b>30 dias</b></span><span>Imóvel em estudo: sempre fontes novas do prédio ou da rua</span></div>
+   <div class="chips" style="margin-bottom:12px"><button type="button" class="chipf" data-mf="" aria-pressed="${!fM2}">Todos (${all.length})</button>${Object.keys(M2_L).map(k=>`<button type="button" class="chipf" data-mf="${k}" aria-pressed="${fM2===k}">${M2_L[k]} (${cnt(k)})</button>`).join("")}</div>
+   <div class="card tw"><table><thead><tr><th class="tx">Cidade</th><th class="tx">Bairro</th><th class="tx">Tipo</th><th>R$/m² (P25)</th><th>Fontes</th><th>Pesquisado em</th><th class="tx">Situação</th><th>Última revisão</th></tr></thead><tbody>
+   ${list.map(r=>{ const st=m2Status(r), d=m2Dias(r), vr=m2Var(r);
+     return `<tr class="click" data-m2="${esc(r.id)}"><td class="tx">${esc(r.cidade)}</td><td class="tx wrapc">${esc(r.bairro)}</td><td class="tx">${esc(r.tipo)}</td><td>${fR(+r.m2)}</td><td>${+r.n||0}</td><td>${fD(r.pesquisadoEm)}<div class="hint">${isFinite(d)?d+" dia(s)":""}</div></td><td class="tx"><span class="selo ${M2_C[st]}">${M2_L[st]}</span>${m2Val(r)<0?`<div class="hint">marcado para reconferir</div>`:m2Val(r)!==M2_VALIDADE?`<div class="hint">vale ${m2Val(r)} dias</div>`:""}</td><td>${isFinite(vr)?`<span class="${Math.abs(vr)>.1?"wrn":""}">${vr>0?"+":""}${fP(vr)}</span>`:"—"}</td></tr>
+`; }).join("")||`<tr><td colspan="8" class="tx" style="position:static">${db?(loaded.m2?"Nenhum bairro com esse filtro.":"Carregando…"):"Abra esta página pelo link do Claude para ver a base."}</td></tr>`}
+   </tbody></table></div>
+   <p class="hint">A garimpagem consulta esta base antes de pesquisar preço: se o bairro está válido, usa o valor guardado; se venceu ou não existe, pesquisa e atualiza. Toque num bairro para ver e editar.</p>`;
+  const qi=$("#qM2"); if(qi){ qi.addEventListener("input",()=>{ qM2=qi.value; const pos=qi.selectionStart; renderM2(); const n=$("#qM2"); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(e){} } }); }
+  $("#ctM2").textContent=all.length||"";
+}
+$("#v-m2").addEventListener("click",e=>{
+  const f=e.target.closest("[data-mf]"); if(f){ fM2=f.dataset.mf; renderM2(); return; }
+  if(e.target.closest("[data-m2novo]")){ m2Editor(null); return; }
+  if(e.target.closest("a")||e.target.closest("input")) return;
+  const r=e.target.closest("[data-m2]"); if(r) m2Editor(r.dataset.m2);
+});
+const M2_TIPOS=["Apartamento","Casa","Terreno","Comercial","Outro"];
+function m2P25(fs){ const v=fs.filter(x=>+x.valor>0&&+x.area>0).map(x=>x.valor/x.area); if(!v.length) return {m2:NaN,n:0,min:NaN,max:NaN}; return {m2:quant(v,.25),n:v.length,min:Math.min(...v),max:Math.max(...v)}; }
+function m2Editor(id){
+  const r0=id?m2rows.find(x=>x.id===id):null; if(id&&!r0) return;
+  const E={fontes:((r0&&r0.fontes)||[]).map(x=>({link:x.link||"",valor:+x.valor||0,area:+x.area||0})), delAsk:false};
+  const ro=!canWrite||!db;
+  const vd=r0?(r0.validadeDias===0||r0.validadeDias==="0"?"0":(+r0.validadeDias?String(+r0.validadeDias):"")):"";
+  const num=v=>v?String(v).replace(".",","):"";
+  $("#dlgRoot").innerHTML=`<div class="dlg m2ed" data-x="1"><section class="box" role="dialog" aria-modal="true" aria-label="Bairro da base de m²"><div class="hd"><h2>${r0?esc(r0.bairro)+" · "+esc(r0.cidade):"Novo bairro"}</h2><small>${r0?esc(r0.tipo):"base de m²"}</small></div><div class="bd">
+    <div class="fields three">
+      <label class="f">Cidade<div class="in"><input id="m2Ci" value="${esc(r0?r0.cidade:"")}"${ro?" readonly":""}></div></label>
+      <label class="f">Bairro<div class="in"><input id="m2Ba" value="${esc(r0?r0.bairro:"")}"${ro?" readonly":""}></div></label>
+      <label class="f">Tipo<div class="in"><select id="m2Ti"${ro?" disabled":""}>${M2_TIPOS.map(t=>`<option${r0&&r0.tipo===t?" selected":""}>${t}</option>`).join("")}</select></div></label>
+    </div>
+    <div class="box" style="background:var(--sunk)"><div class="bd">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3>Fontes (anúncios do bairro)</h3>${ro?"":`<button type="button" class="sm" id="m2AddF">+ Fonte</button>`}</div>
+      <div class="m2fon" id="m2Fon"></div>
+      <div class="m2calc" id="m2Calc"></div>
+    </div></div>
+    <div class="fields three">
+      <label class="f">R$/m² usado<div class="in"><span>R$</span><input id="m2V" class="n" inputmode="decimal" value="${esc(r0&&+r0.m2?n2.format(+r0.m2):"")}"${ro?" readonly":""}></div><div class="hint"><button type="button" class="link sm" id="m2UsaP25"${ro?" disabled":""}>Usar o P25 das fontes</button></div></label>
+      <label class="f">Pesquisado em<div class="in"><input id="m2Dt" type="date" value="${esc(r0&&r0.pesquisadoEm?String(r0.pesquisadoEm).slice(0,10):todayISO())}"${ro?" readonly":""}></div></label>
+      <label class="f">Validade<div class="in"><select id="m2Vd"${ro?" disabled":""}><option value=""${vd===""?" selected":""}>Padrão (${M2_VALIDADE} dias)</option><option value="30"${vd==="30"?" selected":""}>30 dias</option><option value="60"${vd==="60"?" selected":""}>60 dias</option><option value="0"${vd==="0"?" selected":""}>Reconferir na próxima garimpagem</option></select></div></label>
+      <label class="f full">Observação<div class="in"><textarea id="m2Ob" style="min-height:48px"${ro?" readonly":""}>${esc(r0&&r0.obs||"")}</textarea></div></label>
+    </div>
+    ${r0&&(r0.historico||[]).length?`<div class="hint">Revisões: ${r0.historico.map(h=>fD(h.data)+" "+fR(+h.m2)).join(" → ")}${r0.origem?" · origem: "+esc(r0.origem):""}</div>`:""}
+    <div class="bar" style="justify-content:flex-end;flex-wrap:wrap"><span class="save-state" id="m2St" style="margin-right:auto"></span>${r0&&!ro?`<span id="m2DelW"><button type="button" class="danger" id="m2Del">Excluir</button></span>`:""}<button type="button" id="m2No">${ro?"Fechar":"Cancelar"}</button>${ro?"":`<button type="button" class="pri" id="m2Ok">Salvar</button>`}</div>
+  </div></section></div>`;
+  const close=()=>{ $("#dlgRoot").innerHTML=""; };
+  const calc=()=>{ const k=m2P25(E.fontes); $("#m2Calc").innerHTML=k.n?`P25 das fontes: <b>${fR(k.m2)}/m²</b> · ${k.n} fonte(s) com valor e área · faixa ${fR(k.min)} a ${fR(k.max)}${k.n<3?" · o ideal é 3 ou mais":""}`:"Cadastre fontes com valor e área para calcular o P25."; return k; };
+  const drawF=()=>{ $("#m2Fon").innerHTML=E.fontes.map((x,i)=>`<div class="rw" data-i="${i}">
+      <div class="lk in"><input data-k="link" placeholder="Link do anúncio" value="${esc(x.link)}"${ro?" readonly":""}></div>
+      <div class="in"><span>R$</span><input data-k="valor" class="n" inputmode="decimal" value="${x.valor?esc(n2.format(x.valor)):""}"${ro?" readonly":""}></div>
+      <div class="in"><input data-k="area" class="n" inputmode="decimal" value="${x.area?esc(num(x.area)):""}"${ro?" readonly":""}><span>m²</span></div>
+      ${ro?(x.link?extLink(x.link,"abrir ↗"):""):`<button type="button" class="sm danger" data-rm="${i}" aria-label="Remover fonte">×</button>`}</div>`).join("")||`<div class="hint">Nenhuma fonte.</div>`; calc(); };
+  drawF();
+  $("#m2Fon").addEventListener("input",e=>{ const el=e.target.closest("[data-k]"); if(!el) return; const i=+el.closest("[data-i]").dataset.i, k=el.dataset.k; E.fontes[i][k]=k==="link"?el.value.trim():parseNum(el.value)||0; calc(); });
+  $("#m2Fon").addEventListener("click",e=>{ const b=e.target.closest("[data-rm]"); if(!b) return; E.fontes.splice(+b.dataset.rm,1); drawF(); });
+  const add=$("#m2AddF"); if(add) add.addEventListener("click",()=>{ E.fontes.push({link:"",valor:0,area:0}); drawF(); const ins=$$("#m2Fon [data-k=link]"); if(ins.length) ins[ins.length-1].focus(); });
+  const up=$("#m2UsaP25"); if(up) up.addEventListener("click",()=>{ const k=calc(); if(isFinite(k.m2)) $("#m2V").value=n2.format(Math.round(k.m2*100)/100); });
+  $("#m2No").addEventListener("click",close);
+  $(".dlg").addEventListener("click",e=>{ if(e.target.dataset.x) close(); });
+  const dw=$("#m2DelW");
+  if(dw) dw.addEventListener("click",async e=>{
+    if(e.target.id==="m2Del"){ dw.innerHTML=`<button type="button" class="danger" id="m2DelOk">Confirmar exclusão</button>`; return; }
+    if(e.target.id==="m2DelOk"){ try{ await db.collection("m2").doc(r0.id).delete(); close(); }catch(err){ $("#m2St").textContent="Não foi possível excluir. Tente de novo."; } }
+  });
+  const ok=$("#m2Ok");
+  if(ok) ok.addEventListener("click",async()=>{
+    const cidade=$("#m2Ci").value.trim(), bairro=$("#m2Ba").value.trim(), tipo=$("#m2Ti").value;
+    const m2v=parseNum($("#m2V").value), dt=$("#m2Dt").value||todayISO();
+    if(!cidade||!bairro){ $("#m2St").textContent="Preencha cidade e bairro."; return; }
+    if(!(m2v>0)){ $("#m2St").textContent="Informe o R$/m² ou use o P25 das fontes."; return; }
+    const nid=m2Slug(cidade,bairro,tipo);
+    if(nid!==(r0&&r0.id)&&m2rows.some(x=>x.id===nid)){ $("#m2St").textContent="Esse bairro e tipo já existem na base. Abra o registro existente."; return; }
+    const fs=E.fontes.filter(x=>x.link||x.valor>0||x.area>0), k=m2P25(fs);
+    const hist=((r0&&r0.historico)||[]).slice(); const last=hist[hist.length-1];
+    if(!last||Math.abs(+last.m2-m2v)>0.005||String(last.data)!==dt) hist.push({data:dt,m2:Math.round(m2v*100)/100});
+    const vdv=$("#m2Vd").value;
+    const data={cidade,bairro,tipo,m2:Math.round(m2v*100)/100,n:k.n||fs.length,min:isFinite(k.min)?Math.round(k.min*100)/100:null,max:isFinite(k.max)?Math.round(k.max*100)/100:null,fontes:fs,pesquisadoEm:dt,historico:hist.slice(-24),origem:(r0&&r0.origem)||"Manual",obs:$("#m2Ob").value.trim(),editadoEm:new Date().toISOString(),editadoPor:myId};
+    if(vdv!=="") data.validadeDias=+vdv;
+    ok.disabled=true; $("#m2St").textContent="Salvando…";
+    try{
+      await db.collection("m2").doc(nid).set(data);
+      if(r0&&r0.id!==nid) await db.collection("m2").doc(r0.id).delete();
+      close();
+    }catch(err){ ok.disabled=false; $("#m2St").textContent="Não foi possível salvar. Verifique sua permissão."; }
+  });
+}
+
+/* =================== navegação =================== */
+const VIEWS=["oportunidades","calculadora","descartados","historico","m2"];
+let VIEW=null;
+function view(){ if(VIEW) return VIEW; let h=""; try{ h=(location.hash||"").slice(1); }catch(e){} return VIEWS.includes(h)?h:"oportunidades"; }
+function go(v){ VIEW=v; try{ history.replaceState(null,"","#"+v); }catch(e){} route(); }
+function route(){
+  const v=view();
+  for(const x of VIEWS) $("#v-"+x).hidden=x!==v;
+  $$(".menu a").forEach(a=>a.setAttribute("aria-current",a.dataset.view===v?"page":"false"));
+  if(v==="calculadora"){ cvInit(); cvCards(); cvMark(); cvList(); }
+  renderView();
+}
+function renderView(){
+  const v=view();
+  if(v==="oportunidades") renderBoard(); else { $("#ctOp").textContent=ativos().length||""; }
+  if(v==="descartados") renderDescartados();
+  if(v==="historico") renderHistorico();
+  if(v==="m2") renderM2();
+  if(v==="calculadora"&&CV){ cvCards(); cvList(); cvMark(); }
+}
+function renderAll(){ renderBoard(); if(view()!=="oportunidades") renderView(); if(D) refreshDerived(); }
+window.addEventListener("hashchange",()=>{ VIEW=null; route(); });
+$$(".menu a").forEach(a=>a.addEventListener("click",e=>{ e.preventDefault(); go(a.dataset.view); }));
+
+/* =================== descarte automático (margem/PGFN) e envio ao Histórico quando a última praça passa (colunas 0 a 3) =================== */
+const autoFeito=new Set();
+let autoT=null;
+function agendarAuto(){ clearTimeout(autoT); autoT=setTimeout(autoDescartar,1500); }
+const tabId=rid();
+async function autoDescartar(){
+  if(!db||!canWrite) return;
+  /* só um aparelho aberto faz o descarte de cada vez */
+  try{ const l=await db.doc("locks/autodescarte").acquire({holder:tabId,ttlMs:60000}); if(!l.acquired) return; }catch(e){}
+  const t=todayISO(), ts=new Date().toISOString();
+  const descarta=(c,motivo,tx,logTxt)=>db.collection("cards").doc(c.id).update({status:"descartado",motivoDescarte:motivo,motivoTexto:tx,descartadoEm:ts,descartadoPor:myId,descarteAuto:true,atualizadoEm:ts,atualizadoPor:myId,logx:logPatch([logTxt],ts,myId)}).catch(()=>{});
+  const encerra=(c,logTxt,quando)=>db.collection("cards").doc(c.id).update({status:"encerrado",encerradoEm:quando||ts,motivoDescarte:null,motivoTexto:null,descarteAuto:null,atualizadoEm:ts,atualizadoPor:myId,logx:logPatch([logTxt],ts,myId)}).catch(()=>{});
+  for(const c of cards.values()){
+    if(autoFeito.has(c.id)) continue;
+    if(D&&D.id===c.id) continue;
+    /* descartados antes só porque a data passou: vão para o Histórico */
+    if(c.status==="descartado"){
+      if(c.descarteAuto&&c.motivoDescarte==="data passou"){ autoFeito.add(c.id); await encerra(c,"Movido para o Histórico: prazo encerrado (estava em Descartados)",c.descartadoEm); }
+      continue; }
+    if(["encerrado","nao_arrematado","arrematado","suspenso"].includes(c.status)) continue;
+    /* Comprei PGFN (venda da União): fora da análise em qualquer etapa */
+    if(c.coluna<=3&&isPGFN(c)){
+      autoFeito.add(c.id);
+      const tx="Imóvel do Comprei PGFN: fora da análise";
+      await descarta(c,"outro",tx,"Descartado automaticamente: "+tx);
+      continue; }
+    if(!(c.coluna>=0&&c.coluna<=3)) continue;
+    /* triados: só fica quem passa no corte de margem bruta pela conta da página */
+    if(c.coluna===0&&!c.reabertoEm){ const m=mercado(c);
+      if(m.n>=1&&isFinite(m.margem)&&m.margem<cB()){
+        autoFeito.add(c.id);
+        const g=+c.margemBruta, tx="Margem bruta "+fP(m.margem)+" no recálculo da página (P25 do R$/m² das fontes × área privativa), abaixo do corte de "+CFG.corteBruto+"%"+(isFinite(g)&&g>0?"; a garimpagem tinha indicado "+fP(g):"");
+        await descarta(c,"margem",tx,"Descartado automaticamente da triagem: "+tx);
+        continue; } }
+    const u=ultimaPraca(c); if(!u||u.data>=t) continue;
+    if(c.reabertoEm&&String(c.reabertoEm).slice(0,10)>=u.data) continue;
+    autoFeito.add(c.id);
+    await encerra(c,"Foi para o Histórico automaticamente: a última praça ("+fD(u.data)+") já passou");
+  }
+}
+
+/* =================== início =================== */
+route();
+(async()=>{
+  const use=n=>window.claude&&window.claude.use?window.claude.use(n).catch(()=>null):Promise.resolve(null);
+  [db,user,assets]=await Promise.all([use("db"),use("user"),use("assets")]);
+  if(!db){ showBanner("Os dados ficam disponíveis quando a página é aberta pelo link do Claude, com a sua conta do Team."); renderAll(); return; }
+  if(user){ try{ const me=await user.me(); myId=me.id; $("#whoLbl").textContent=me.name?"· "+me.name:""; const cw=await user.can("data.write"); if(cw===false){ canWrite=false; showBanner("Você pode ver, mas não editar esta página. Peça acesso de Colaborador ao dono."); } }catch(e){} }
+  db.doc("config/padroes").onSnapshot(s=>{ CFG=Object.assign(clone(CFG_DEF),s.exists?s.data():{}); renderAll(); },()=>{});
+  db.collection("cards").onSnapshot(snap=>{
+    for(const ch of snap.docChanges()){
+      if(ch.type==="removed") cards.delete(ch.doc.id);
+      else { const c=Object.assign({id:ch.doc.id},ch.doc.data()); c.coluna=(c.coluna===0||c.coluna==="0")?0:(+c.coluna||1); cards.set(c.id,c); if(D&&D.id===c.id) syncDrawerFromRemote(c); }
+    }
+    loaded.cards=true; renderAll(); agendarAuto();
+  },e=>showBanner("Não foi possível carregar os imóveis. Recarregue a página.",true));
+  let firstSims=true;
+  db.collection("simulacoes").orderBy("atualizadoEm","desc").onSnapshot(snap=>{
+    sims=snap.docs.map(d=>Object.assign({id:d.id},d.data())); loaded.sims=true;
+    if(CV){ if(firstSims){ let last=null; try{ last=localStorage.getItem("ultimaSim"); }catch(e){} const s=sims.find(x=>x.id===last)||sims[0]; if(s&&!CV.curId&&!CV.saved&&!CV.retorno) cvOpen(s); } if(CV.curId&&!sims.some(s=>s.id===CV.curId)) CV.curId=null; }
+    firstSims=false; renderAll();
+  },()=>{});
+  db.collection("historico").onSnapshot(snap=>{ hist=snap.docs.map(d=>Object.assign({id:d.id},d.data())); loaded.hist=true; renderAll(); },()=>{});
+  db.collection("m2").onSnapshot(snap=>{ m2rows=snap.docs.map(d=>Object.assign({id:d.id},d.data())); loaded.m2=true; $("#ctM2").textContent=m2rows.length||""; if(view()==="m2") renderM2(); if(D) refreshDerived(); },()=>{ loaded.m2=true; });
+})();
+})();
+</script>
+
+</body></html>
