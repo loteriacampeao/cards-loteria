@@ -125,6 +125,16 @@ python3 triagem.py --imoveis /tmp/g/imoveis.json --m2 /tmp/g/db/m2 --cards /tmp/
     arrematante 100% → total · não informado → total (conservador).
 - IPTU: mesma regra de quem paga; valor bem mais incerto, marcado como estimado.
 
+## Liquidez, foto de capa e links (todo card gravado)
+
+- **Liquidez:** `python3 -c "from liquidez import avaliar_liquidez"` → grava `liquidez` ("Alta (< 6 meses)" |
+  "Média (até 12)" | "Baixa (> 12)") e `liquidezObs` com o motivo. Nunca sobrescreve a do Magno.
+- **Foto de capa (Caixa):** `https://venda-imoveis.caixa.gov.br/fotos/F<numeroCaixa>21.jpg` abre da nuvem; baixe
+  (um por vez), envie como asset do quadro e grave em `fotos` `[{id, nome, origem: "Caixa", em, por: null}]`.
+  Outros leiloeiros: foto pela parte do computador. Sem foto = card sem capa (evite).
+- **Links:** `linkAnuncio` é SEMPRE a página do imóvel (Caixa: `detalhe-imovel.asp?hdnimovel=<n>`), nunca o PDF
+  do edital (que vale para dezenas de imóveis). O PDF do edital vai em `linkEdital` (e, se baixado, em Arquivos).
+
 ## Documentos no card
 
 Todo documento baixado (matrícula, edital, laudo, processo) vai para a seção **Arquivos** do card: envie com
@@ -166,6 +176,7 @@ Nada pago, nunca.
 - `scripts/mercado.py` — P25, contaminado, duplicado, teto, nota de confiança.
 - `scripts/custos.py` — margem líquida e lance máximo (cópia fiel da Calculadora do quadro, testada).
 - `scripts/avaliar.py` — fecha cada imóvel e monta o card (decisão, fila, pontos de atenção, alerta de 1ª praça).
+- `scripts/liquidez.py` — liquidez estimada (Alta/Média/Baixa) com o motivo.
 - `scripts/matricula.py` — matrícula da Caixa: download, OCR e resumo curto com alertas.
 - `scripts/gerar_planilha.py` — planilha dos aprovados.
 - `references/quadro.md` — formato dos docs `cards`, `m2`, `config` e regras de gravação.
