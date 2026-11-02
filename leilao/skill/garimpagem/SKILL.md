@@ -106,6 +106,37 @@ python3 triagem.py --imoveis /tmp/g/imoveis.json --m2 /tmp/g/db/m2 --cards /tmp/
     alterada > 10% (de → para); lista dos aprovados (cidade, bairro, tipo, área, lance, data ou "venda direta",
     venda P25, líquido, lance máximo, nota, link).
 
+## Débitos (condomínio, IPTU e outros)
+
+- O robô **nunca preenche** os débitos reais (`debitos.cond.valor`, `debitos.iptu.valor`): esses campos são do Magno.
+- O robô grava só a **estimativa** em `debitoEstimado` e a usa no líquido enquanto o real estiver vazio
+  (o líquido sem a estimativa fica em `margemLiquidaSemDebitos`):
+  - **início:** a data conhecida da dívida (edital/anúncio) quando houver; senão, o mais conservador: a data em
+    que o ex-proprietário COMPROU o imóvel (registro da compra/alienação na matrícula). Antes disso o dono era outro
+    e a compra exige declaração de quitação do condomínio.
+  - **fim:** mês da praça de referência (venda direta: mês atual).
+  - **mensal:** condomínio dos anúncios do mesmo prédio (guarde `condominio` em cada comparável na pesquisa de
+    preço); sem prédio, média da rua, marcado como estimado; sem nenhum, `debitoEstimado.cond.mensal = null` e aviso.
+  - **quem paga** (anúncio/edital): vendedor → 0 · arrematante até 10% da avaliação → min(total, 10% × avaliação) ·
+    arrematante 100% → total · não informado → total (conservador).
+- IPTU: mesma regra de quem paga; valor bem mais incerto, marcado como estimado.
+
+## Documentos no card
+
+Todo documento baixado (matrícula, edital, laudo, processo) vai para a seção **Arquivos** do card: envie com
+`Artifact publish asset:true url=<quadro> file_paths=[...]` e acrescente em `arquivos`
+`{id, nome, tipo: "Matrícula"|"Edital"|"Laudo"|"Print"|"Outro", em, por: null}` (lista inteira no update).
+
+## Processos do ex-proprietário (gratuito)
+
+Nome e CPF vêm da matrícula. Só registrar SE há processo (o Magno investiga):
+1. Nuvem: WebSearch pelo nome completo entre aspas + cidade/UF e "processo" → páginas públicas (Jusbrasil,
+   Escavador, diários oficiais) que citem a pessoa.
+2. Computador (Chrome): páginas públicas do Escavador/Jusbrasil pelo nome, navegação normal.
+3. Tribunais (TJMG, TRF6, TRT3) pedem CAPTCHA: NÃO entra no automático; fica para o Magno nos que forem estudar.
+Grave em `juridico.E5.procDevedor` `{resp: "sim"|"nao", obs: "<n> resultado(s) na busca pública: <links> — busca automática, pode haver homônimo"}`.
+Nada pago, nunca.
+
 ## Base de m² (coleção `m2` do quadro — a ÚNICA base)
 
 - Válido: `hoje − pesquisadoEm ≤ validadeDias` (ou 90 se não houver; `validadeDias = 0` = vencido).
