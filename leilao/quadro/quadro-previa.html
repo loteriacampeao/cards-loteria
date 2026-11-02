@@ -423,7 +423,7 @@ const fP=v=>isFinite(v)?(v*100).toLocaleString("pt-BR",{minimumFractionDigits:1,
 const fK=v=>{ if(!isFinite(v)) return "—"; const a=Math.abs(v); return (v<0?"-":"")+"R$ "+(a>=1000?(a/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mil":n2.format(a)); };
 const fR0=v=>isFinite(v)?new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0}).format(v):"—";
 /* confiança do preço (garimpagem): alta / media / baixa */
-const CONF={alta:"green",media:"blue",baixa:"yel"}, CONF_L={alta:"confirmado",media:"provável",baixa:"a conferir"};
+const CONF={alta:"green",media:"blue",baixa:"yel"}, CONF_L={alta:"alta",media:"média",baixa:"baixa"};
 function confKey(c){ const n=norm(c&&c.notaConfianca); return n.startsWith("alt")?"alta":n.startsWith("med")?"media":n.startsWith("baix")?"baixa":""; }
 function parseNum(s){
   if(typeof s==="number") return s;
@@ -997,7 +997,7 @@ function tileNovos(c){
   const ml=c.margemLiquida==null||c.margemLiquida===""?NaN:+c.margemLiquida, lm=+c.lanceMaximo, k=confKey(c);
   const out=[];
   if(lm>0) out.push(`<span><span class="k">Lance máx.</span> <b>${fR0(lm)}</b></span>`);
-  if(k) out.push(`<span class="selo ${CONF[k]}" title="Preço confirmado: 3 ou mais anúncios no prédio/rua. Provável: menos anúncios ou só no bairro. A conferir: poucos dados ou preço que parece alto.">Preço ${CONF_L[k]}</span>`);
+  if(k) out.push(`<span class="selo ${CONF[k]}" title="Probabilidade de vender pelo preço estimado. Alta: 3 ou mais anúncios no prédio/rua. Média: menos anúncios ou só no bairro. Baixa: poucos dados ou preço que parece alto.">Preço: probabilidade ${CONF_L[k]}</span>`);
   if(c.liquidez) out.push(`<span class="selo gray" title="${esc(c.liquidezObs||"")}">Liquidez ${esc(String(c.liquidez).split(" ")[0].toLowerCase())}</span>`);
   if(c.alertaDebito) out.push(`<span class="selo yel" title="Conferir débito de condomínio estimado">Conferir débito</span>`);
   return out.length?`<div class="tnov">${out.join("")}</div>`:"";
@@ -1254,7 +1254,7 @@ function mercadoResumo(c){
     <div class="stat"><span class="lbl">Nível usado</span><b>${m.nivel?NIVL[m.nivel]:"—"}</b></div>
     <div class="stat"><span class="lbl">Comparáveis</span><b>${m.n}${m.total>m.n?" de "+m.total:""}</b></div>
   </div>
-  <div class="hint">Preço de venda: ${confKey(c)?`<span class="selo ${CONF[confKey(c)]}">${CONF_L[confKey(c)]}</span> <span class="muted">(confirmado = 3+ anúncios no prédio ou na rua; provável = menos anúncios ou só no bairro; a conferir = poucos dados ou preço que parece alto)</span>`:"não avaliado"}</div>
+  <div class="hint">Preço: ${confKey(c)?`<span class="selo ${CONF[confKey(c)]}">probabilidade ${CONF_L[confKey(c)]}</span> <span class="muted">(alta = 3+ anúncios no prédio ou na rua; média = menos anúncios ou só no bairro; baixa = poucos dados ou preço que parece alto)</span>`:"não avaliado"}</div>
   ${m2RefCard(c)}
   <div class="hint">${m.metodo?"":"Cadastre comparáveis para calcular o preço de venda. · "}Hierarquia: Prédio &gt; Rua &gt; Bairro.</div>
   ${m.avisos.map(a=>`<div class="alert yel">${esc(a)}</div>`).join("")}`;
@@ -1441,7 +1441,7 @@ function resumoGerencial(c){
       <div class="stat"><span class="lbl">Preço de venda</span><b>${fK(m.p25)}</b></div>
       <div class="stat"><span class="lbl">Líquido</span><b class="big ${ml>=cL()?"pos":"neg"}">${fP(ml)}</b></div>
       <div class="stat"><span class="lbl">Lance máx. (${CFG.corteLiquido}%)</span><b>${lm>0?fK(lm):"—"}</b></div>
-      <div class="stat"><span class="lbl">Preço de venda</span><b>${k?CONF_L[k]:"—"}</b></div>
+      <div class="stat"><span class="lbl">Preço: probabilidade</span><b>${k?CONF_L[k]:"—"}</b></div>
       <div class="stat"><span class="lbl">Liquidez</span><b>${esc(c.liquidez?String(c.liquidez).split(" ")[0]:"—")}</b></div>
       <div class="stat"><span class="lbl">Jurídico</span><b class="${j.travas.length?"neg":""}">${j.travas.length?j.travas.length+" trava(s)":j.resp+"/"+j.total}</b></div></div>
     ${c.alertaDebito&&de?`<div class="alert yel"><b>Conferir débito de condomínio:</b> estimado ${fR(+de.considerado)}. Se confirmado, líquido ${fP(+c.margemLiquidaComDebitoEstimado)}${+c.lanceMaximoComDebitoEstimado>0?" e lance máx. "+fK(+c.lanceMaximoComDebitoEstimado):""}.</div>`:""}
