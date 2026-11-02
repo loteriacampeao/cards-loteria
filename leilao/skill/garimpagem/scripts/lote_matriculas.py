@@ -2,7 +2,7 @@
 """
 Lote de matrículas da Caixa, do jeito educado com o site e rápido no OCR.
 
-Fase 1 — download UM POR VEZ, com intervalo (padrão 6 s). Se o site devolver bloqueio,
+Fase 1 — download UM POR VEZ, com intervalo (padrão 10 s). Se o site devolver bloqueio,
          espera 60 s e segue para o próximo; no fim tenta UMA vez os que falharam.
          (Nada de paralelo nem disfarce: download em rajada faz o site bloquear.)
 Fase 2 — OCR em paralelo (1 núcleo por processo: OMP_THREAD_LIMIT=1), usando os PDFs baixados.
@@ -49,7 +49,7 @@ def main():
     ap.add_argument('lista')
     ap.add_argument('--pasta', required=True)
     ap.add_argument('--uf', default='MG')
-    ap.add_argument('--intervalo', type=float, default=6)
+    ap.add_argument('--intervalo', type=float, default=10)
     ap.add_argument('--paralelo', type=int, default=4)
     a = ap.parse_args()
     itens = [tuple(l.split()[:2]) for l in open(a.lista) if len(l.split()) >= 2]

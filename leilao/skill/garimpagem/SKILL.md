@@ -83,13 +83,20 @@ python3 triagem.py --imoveis /tmp/g/imoveis.json --m2 /tmp/g/db/m2 --cards /tmp/
    guardando `{link, valor, area, nivel, descricao}` de cada fonte (link obrigatório). Monte o JSON do imóvel e rode
    `python3 avaliar.py imoveis.json --padroes padroes.json > avaliados.json`.
    `_decisao`: `triados` | `conferir_preco` → grava · `descartar_liquido` | `sem_preco` → não grava (conte na mensagem).
-6. **Matrícula** (todos os que vão ser gravados, sem limite): `python3 matricula.py <numeroCaixa> > mat.json`.
+6. **Matrícula** (todos os que vão ser gravados, sem limite — análise SEM economia):
+   `python3 lote_matriculas.py lista.txt --pasta /tmp/g/mat` (download UM POR VEZ, 10 s de intervalo; NUNCA em
+   paralelo: em 02/11/2026 uma rajada de 4 downloads simultâneos fez a Caixa bloquear a sessão inteira).
+   Depois leia o **texto completo** de cada matrícula (`texto_completo`), não só o resumo; páginas em
+   `conferir_imagem` (OCR < 80) e qualquer ato ilegível são lidos também pela imagem (`pg-N.png`).
+   O resumo (`atos`, `alertas`) serve de índice.
    Leia SÓ o resumo (`imovel`, `atos`, `alertas`) e preencha o bloco jurídico "Matrícula" do card.
    - **Trava** (vira descarte com motivo "jurídico"): usufruto vitalício sem óbito; nua-propriedade;
      extrajudicial SEM consolidação averbada.
    - Alerta (ponto de atenção): penhora, indisponibilidade, arresto, ação averbada, locação, promessa de compra,
      parte ideal, incapaz. Hipoteca: só se não houver cancelamento.
-   - Se o PDF não baixar: `pendente: ["matricula"]` (a parte do computador tenta).
+   - Se o PDF não baixar (bloqueio): `pendente: ["matricula"]` — a parte do computador baixa pelo Chrome e roda
+     `matricula.py <n> --pdf arquivo.pdf`. Não insista da nuvem.
+   - Judicial/bancos: a matrícula vem dos documentos do leiloeiro (ver `references/computador.md`, item E).
 7. **Mensagem para o corretor** (o envio é manual): preencha `mensagemCorretor` com o modelo de
    `references/quadro.md` e, se algum comparável for de imobiliária com telefone visível, `corretorSugerido`.
 8. Grave no quadro (batch de até 50, sempre com `if_version` em doc que já existe — regras em `references/quadro.md`).

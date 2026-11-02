@@ -46,3 +46,13 @@ Os sites tiram o imóvel do ar no dia seguinte — por isso tem que ser NO DIA.
 3. Grave `resultado` (formato em `quadro.md`), `coluna 4`, `status` = tipo, `encerradoEm`. Se o Magno deu lance,
    NÃO marque nada sozinho: só registre o valor vencedor e deixe a decisão para ele.
 4. Mensagem curta: "Leilões de hoje: X arrematados (valores), Y desertos, Z sem informação".
+
+## E) Matrículas e documentos que a nuvem não baixou (`pendente` contém "matricula")
+
+1. Caixa: abra `https://venda-imoveis.caixa.gov.br/editais/matricula/MG/<numeroCaixa>.pdf` no Chrome e salve o PDF.
+2. Judicial/bancos: no site do leiloeiro (link do anúncio; no Leilão Imóvel, o botão do leiloeiro), baixe matrícula,
+   edital e laudo. Se só houver o processo inteiro, salve-o assim mesmo (o leitor acha as páginas da matrícula).
+3. Rode `python3 matricula.py <numero ou id> --pdf <arquivo.pdf>` e faça a leitura completa (texto inteiro + imagem
+   das páginas com OCR ruim). Grave o bloco E2 (extrajudicial) ou J3 (judicial) e tire "matricula" de `pendente`.
+4. Se o leiloeiro não publicar a matrícula: avise o Magno (certidão pelo ONR / Registro de Imóveis do Brasil,
+   paga, com login dele) — não compre nada sozinho.
