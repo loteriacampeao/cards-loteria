@@ -54,7 +54,8 @@ def baixar(url, destino):
 
 def texto_pdf(pdf, pasta):
     """Texto embutido se a matrícula for digital (>1500 caracteres por página; o carimbo da
-    certidão digital sozinho tem ~1000); senão OCR página a página."""
+    certidão digital sozinho tem ~1000); senão OCR página a página, medindo a CONFIANÇA de
+    cada página (média das palavras, 0–100). Devolve (texto, modo, paginas)."""
     try:
         t = subprocess.run(['pdftotext', '-layout', pdf, '-'], capture_output=True, text=True).stdout
         info = subprocess.run(['pdfinfo', pdf], capture_output=True, text=True).stdout
@@ -62,17 +63,31 @@ def texto_pdf(pdf, pasta):
     except Exception:
         t, npag = '', 1
     if len(re.sub(r'\s+', '', t)) / max(1, npag) > 1500:
-        return t, 'texto'
+        return t, 'texto', [{'n': i + 1, 'conf': 100, 'png': ''} for i in range(npag)]
     base = os.path.join(pasta, 'pg')
     subprocess.run(['pdftoppm', '-r', '200', '-gray', '-png', pdf, base], check=True,
                    stderr=subprocess.DEVNULL)
-    pags = sorted(f for f in os.listdir(pasta) if f.startswith('pg') and f.endswith('.png'))
-    partes = []
-    for p in pags:
-        r = subprocess.run(['tesseract', os.path.join(pasta, p), '-', '-l', 'por', '--psm', '6'],
-                           capture_output=True, text=True)
-        partes.append(r.stdout)
-    return '\n'.join(partes), 'ocr'
+    pngs = sorted(f for f in os.listdir(pasta) if f.startswith('pg') and f.endswith('.png'))
+    partes, paginas = [], []
+    for i, p in enumerate(pngs, 1):
+        img = os.path.join(pasta, p)
+        saida = os.path.join(pasta, f'ocr{i:02d}')
+        subprocess.run(['tesseract', img, saida, '-l', 'por', '--psm', '6', 'txt', 'tsv'],
+                       capture_output=True, text=True)
+        txt = open(saida + '.txt').read() if os.path.exists(saida + '.txt') else ''
+        confs = []
+        if os.path.exists(saida + '.tsv'):
+            for ln in open(saida + '.tsv').read().splitlines()[1:]:
+                c = ln.split('\t')
+                if len(c) == 12 and c[11].strip() and len(c[11].strip()) > 2:
+                    try:
+                        confs.append(float(c[10]))
+                    except ValueError:
+                        pass
+        conf = round(sum(confs) / len(confs), 1) if confs else 0
+        partes.append(f'\n===== PÁGINA {i} (confiança OCR {conf}) =====\n' + txt)
+        paginas.append({'n': i, 'conf': conf, 'png': img, 'palavras': len(confs)})
+    return '\n'.join(partes), 'ocr', paginas
 
 
 def resumir(txt, max_ato=420):
@@ -120,9 +135,12 @@ def main():
     try:
         if not a.pdf:
             baixar(url, pdf)
-        txt, modo = texto_pdf(pdf, pasta)
+        txt, modo, paginas = texto_pdf(pdf, pasta)
         out.update(resumir(txt))
         out['modo'] = modo
+        out['paginas'] = paginas
+        # páginas para CONFERIR PELA IMAGEM: confiança < 80 (texto do OCR duvidoso)
+        out['conferir_imagem'] = [p['png'] for p in paginas if p['png'] and p['conf'] < 80]
         open(os.path.join(pasta, 'texto_completo.txt'), 'w').write(txt)
         out['texto_completo'] = os.path.join(pasta, 'texto_completo.txt')
     except Exception as e:

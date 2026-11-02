@@ -111,8 +111,11 @@ def avaliar(comparaveis, area_privativa, lance, avaliacao=0, pracas=None):
         out['m2'] = out['venda'] / area if area > 0 else float('nan')
         if area > 0:
             out['avisos'].append('Fonte sem área: P25 sobre o valor total, não sobre o R$/m².')
+    # teto (maior anúncio real) só vale quando os comparáveis têm tamanho parecido com o imóvel
     teto = max(float(f['valor']) for f in g)
-    if out['venda'] > teto:
+    areas = sorted(float(f.get('area') or 0) for f in g if float(f.get('area') or 0) > 0)
+    mesmo_porte = not areas or area <= 0 or 0.7 <= area / areas[len(areas) // 2] <= 1.3
+    if mesmo_porte and out['venda'] > teto:
         out['venda'] = teto
         out['avisos'].append('Preço limitado ao maior anúncio real (teto).')
     if lance and lance > 0:
@@ -122,27 +125,29 @@ def avaliar(comparaveis, area_privativa, lance, avaliacao=0, pracas=None):
 
 
 def nota(r, avaliacao=0):
-    """alta / media / baixa — ver tabela no SKILL.md."""
-    nv, n, s, mg = r['nivel'], r['n'], r['sites'], r['margem_bruta']
-    if nv in ('predio', 'rua') and n >= 3 and s >= 2:
+    """alta / media / baixa — ver tabela no SKILL.md. Não descarta: só escolhe a fila.
+    Diversidade de sites NÃO entra na nota (metade dos portais bloqueia a nuvem): vira só aviso."""
+    nv, n, mg = r['nivel'], r['n'], r['margem_bruta']
+    if nv in ('predio', 'rua') and n >= 3:
         nt = 'alta'
-    elif nv in ('predio', 'rua') and n >= 2:
+    elif nv in ('predio', 'rua') and n == 2:
         nt = 'media'
-    elif nv == 'bairro' and n >= 5 and s >= 2:
+    elif nv == 'predio' and n == 1:
         nt = 'media'
-    elif nv in ('bairro', 'vizinho') and n >= 3 and s >= 2:
-        nt = 'media' if nv == 'bairro' else 'baixa'
+        r['avisos'].append('Só 1 anúncio no próprio prédio: o preço é esse anúncio (sem P25).')
+    elif nv == 'bairro' and (n >= 5 or (n >= 3 and r['sites'] >= 2)):
+        nt = 'media'
+    elif nv == 'vizinho' and n >= 5:
+        nt = 'media'
     else:
         nt = 'baixa'
-    if nv == 'vizinho' and nt == 'alta':
-        nt = 'media'
+    if r['sites'] == 1 and n >= 2:
+        r['avisos'].append('Todas as fontes são do mesmo site: se puder, confirme em outro.')
     rebaixa = []
     if mg == mg and mg > 1.0 and n < 5:
         rebaixa.append('margem acima de 100% com menos de 5 fontes')
     if avaliacao and r['venda'] == r['venda'] and r['venda'] > 1.3 * float(avaliacao):
-        rebaixa.append('preço de venda acima de 1,3× a avaliação da Caixa')
-    if s == 1 and n >= 2:
-        rebaixa.append('todas as fontes de um site só')
+        rebaixa.append('preço de venda acima de 1,3× a avaliação')
     if rebaixa:
         nt = {'alta': 'media', 'media': 'baixa', 'baixa': 'baixa'}[nt]
         r['avisos'].append('Nota rebaixada: ' + '; '.join(rebaixa) + '.')

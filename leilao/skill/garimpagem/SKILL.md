@@ -24,10 +24,13 @@ Trabalhe em **português do Brasil**, curto e direto. Precisão vale mais que ve
 
    | Nota | Regra |
    |---|---|
-   | alta | Prédio ou Rua com ≥ 3 fontes de ≥ 2 sites |
-   | média | Prédio/Rua com 2 fontes · Bairro com ≥ 5 fontes de ≥ 2 sites · Bairro com ≥ 3 fontes de ≥ 2 sites |
-   | baixa | o resto · Bairro vizinho no máximo baixa com 3 fontes |
-   | rebaixa 1 nível | margem > 100% com < 5 fontes · venda > 1,3× avaliação · todas as fontes de um site só |
+   | alta | Prédio ou Rua com ≥ 3 fontes |
+   | média | Prédio/Rua com 2 fontes · Prédio com 1 anúncio · Bairro com ≥ 5 fontes (ou ≥ 3 de 2 sites) · Bairro vizinho com ≥ 5 |
+   | baixa | o resto |
+   | rebaixa 1 nível | margem > 100% com < 5 fontes · venda > 1,3× avaliação |
+
+   Fontes de um site só: só aviso (metade dos portais bloqueia a nuvem). Teto pelo maior anúncio só quando os
+   comparáveis têm porte parecido (área entre 70% e 130% da mediana).
 
    alta/média → coluna **"Imóveis triados"**. baixa → mesma coluna, com `fila: "conferir_preco"` (o Magno decide).
 6. **Cidade pequena / interior:** se não houver anúncio no prédio, rua ou bairro, pesquise o **bairro vizinho**

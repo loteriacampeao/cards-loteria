@@ -73,6 +73,11 @@ r2 = avaliar([{'link': 'https://x.com/1', 'valor': 300000, 'area': 50, 'nivel': 
               {'link': 'https://y.com/1', 'valor': 320000, 'area': 52, 'nivel': 'Bairro vizinho'},
               {'link': 'https://y.com/2', 'valor': 310000, 'area': 50, 'nivel': 'Bairro vizinho'}], 50, 100000)
 ok(r2['nota'] == 'baixa' and r2['nivel'] == 'vizinho', f"bairro vizinho com margem 200% = baixa, NÃO descarta (nota {r2['nota']})")
+r3 = avaliar([{'link': 'https://x.com/1', 'valor': 105000, 'area': 207, 'nivel': 'Bairro'},
+              {'link': 'https://x.com/2', 'valor': 145000, 'area': 290, 'nivel': 'Bairro'}], 2655, 465000)
+ok(r3['venda'] > 1_000_000, f"terreno grande x lotes pequenos: sem teto (venda {r3['venda']:,.0f})")
+r4 = avaliar([{'link': 'https://x.com/1', 'valor': 200000, 'area': 50, 'nivel': 'Prédio'}], 50, 120000)
+ok(r4['nota'] == 'media', f"1 anúncio no próprio prédio = média (veio {r4['nota']})")
 
 print('3) comum.py')
 grafias = {
