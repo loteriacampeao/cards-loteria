@@ -1192,7 +1192,7 @@ function tabDados(c){
   const jud=c.tipoLeilao==="Judicial", mods=jud?MOD_JUD:MOD_EXT;
   const modOpts=[["","Escolha…"],...mods]; if(c.modalidade&&!mods.includes(c.modalidade)) modOpts.push([c.modalidade,c.modalidade+" (informada)"]);
   const ps=c.pracas||[];
-  const links=[extLink(c.linkAnuncio,"Abrir anúncio"),extLink(c.linkLeilaoImovel,"Abrir no Leilão Imóvel"),extLink(c.leiloeiroSite,"Site do leiloeiro")].filter(Boolean).join(" · ");
+  const links=[extLink(c.linkAnuncio,"Abrir anúncio"),extLink(c.linkLeilaoImovel,"Abrir no Leilão Imóvel"),extLink(c.leiloeiroSite,"Site do leiloeiro"),extLink(linkMatCaixa(c),"Matrícula (Caixa)")].filter(Boolean).join(" · ");
   const cab=box("Cabeçalho do leilão",`
    <div style="display:grid;gap:6px"><span class="lbl">Tipo de leilão</span><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><div class="seg">${["Extrajudicial","Judicial"].map(t=>`<button type="button" data-act="tipo:${t}" aria-pressed="${c.tipoLeilao===t}">${t}</button>`).join("")}</div><span class="hint">${/garimp/i.test(c.origem||"")?"Pré-preenchido pela garimpagem. Toque para corrigir.":"Define o roteiro jurídico da coluna 2."}</span></div></div>
    <div class="fields">
@@ -1417,6 +1417,8 @@ function decisaoResumo(c){
     <div class="stat"><span class="lbl">Travas</span><b class="${j.travas.length?"neg":""}">${j.travas.length}</b></div>
     <div class="stat"><span class="lbl">Preço teto</span><b>${fK(+c.precoTeto)}</b></div></div>`;
 }
+/* matrícula da Caixa: endereço fixo a partir do número do imóvel (abre direto no navegador) */
+function linkMatCaixa(c){ const n=String(c.numeroCaixa||"").replace(/\D/g,""); if(n.length<10) return ""; return "https://venda-imoveis.caixa.gov.br/editais/matricula/"+(String(c.uf||"MG").trim().toUpperCase().slice(0,2)||"MG")+"/"+n+".pdf"; }
 function resumoGerencial(c){
   const m=mercado(c), j=jurStatus(c), l=lanceRef(c), p=proxData(c), lm=+c.lanceMaximo, ml=liqDe(c), k=confKey(c);
   const f=(c.fotos||[])[0];
@@ -1426,6 +1428,7 @@ function resumoGerencial(c){
     .filter(([id])=>E2[id]).map(([id,t])=>{ const a=E2[id]; const r=a.resp||""; const bad=(["gravame","indisp","usufruto"].includes(id)&&r==="sim")||(["consolidacao","afRegistrada","descBate"].includes(id)&&r==="nao");
       return `<li><b>${esc(t)}:</b> <span class="${bad?"neg":r?"":"wrn"}">${r?esc(RESP_L[r]||r):"conferir"}</span>${a.obs?` <span class="muted">— ${esc(String(a.obs).replace(/\s*—\s*leitura automática da matrícula\s*$/,""))}</span>`:""}</li>`; }).join("");
   const docs=(c.arquivos||[]).filter(a=>/edital|matr|laudo/i.test((a.tipo||"")+" "+(a.nome||""))).map(a=>`<a class="go" href="/_blob/${esc(a.id)}" target="_blank" rel="noopener">${esc(a.tipo||"Arquivo")} ↗</a>`);
+  if(linkMatCaixa(c)) docs.push(`<a class="go" href="${hrefOk(linkMatCaixa(c))}" target="_blank" rel="noopener">Matrícula (Caixa) ↗</a>`);
   if(safeUrl(c.linkEdital)) docs.push(`<a class="go" href="${hrefOk(c.linkEdital)}" target="_blank" rel="noopener">Edital ↗</a>`);
   if(safeUrl(c.linkAnuncio)) docs.push(`<a class="go" href="${hrefOk(c.linkAnuncio)}" target="_blank" rel="noopener">Anúncio ↗</a>`);
   if(safeUrl(c.linkLeilaoImovel)) docs.push(`<a class="go" href="${hrefOk(c.linkLeilaoImovel)}" target="_blank" rel="noopener">Leilão Imóvel ↗</a>`);
