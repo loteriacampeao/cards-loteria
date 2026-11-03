@@ -2089,13 +2089,8 @@ async function autoDescartar(){
       await descarta(c,"outro",tx,"Descartado automaticamente: "+tx);
       continue; }
     if(!(c.coluna>=0&&c.coluna<=3)) continue;
-    /* triados: só fica quem passa no corte de margem bruta pela conta da página */
-    if(c.coluna===0&&!c.reabertoEm){ const m=mercado(c);
-      if(m.n>=1&&isFinite(m.margem)&&m.margem<cB()){
-        autoFeito.add(c.id);
-        const g=+c.margemBruta, tx="Margem bruta "+fP(m.margem)+" no recálculo da página, abaixo do corte de "+CFG.corteBruto+"%"+(isFinite(g)&&g>0?"; a garimpagem tinha indicado "+fP(g):"");
-        await descarta(c,"margem",tx,"Descartado automaticamente da triagem: "+tx);
-        continue; } }
+    /* triados: nada é descartado sozinho por margem. Quem fica abaixo do corte líquido aparece no grupo
+       "Abaixo de X% líquido" da coluna Imóveis triados, para o Magno decidir. */
     const u=ultimaPraca(c); if(!u||u.data>=t) continue;
     if(c.reabertoEm&&String(c.reabertoEm).slice(0,10)>=u.data) continue;
     autoFeito.add(c.id);
