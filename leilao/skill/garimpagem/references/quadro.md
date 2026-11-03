@@ -30,7 +30,7 @@ com outro id, atualize o existente em vez de criar outro.
 
 Campos gravados pela garimpagem (criação, `set`):
 ```
-coluna 0 · status "triado" · fila "" | "conferir_preco"
+coluna 0 · status "triado" · fila "" | "conferir_preco" | "sem_preco" | "abaixo_liquido"   (a página agrupa a coluna 1 por fila e data)
 tipoLeilao "Extrajudicial"|"Judicial" · modalidade (lista fechada de comum.MODALIDADES)
 credor, leiloeiro, pracas [{data "AAAA-MM-DD"|"" , hora, valor}] (TODAS; venda direta = 1 praça sem data)
 linkAnuncio, linkLeilaoImovel, linkMatricula, endereco, cidade, bairro, predio, tipoImovel,
@@ -38,8 +38,12 @@ areaPrivativa, areaTotal, quartos, vagas, situacao, matricula, numeroCaixa, aval
 fotosUrls [], formasPagamento ["À vista","FGTS","Financiamento","Parcelado"],
 debitos {cond:{quem, valor}, iptu:{quem, valor}}  quem = "vendedor"|"arrematante"|"arrematante_10"|""
 comparaveis [{link, descricao, valor, area, quartos, vagas, condominio, nivel "Prédio"|"Rua"|"Bairro"|"Bairro vizinho"}]
-vendaP25, nivelComparavel, notaConfianca "alta"|"media"|"baixa",
-margemBruta, margemLiquida, lanceMaximo, lanceRef                     ← margemLiquida/lanceMaximo/notaConfianca: NOVOS
+vendaP25, nivelComparavel, notaConfianca "alta"|"media"|"baixa"  (a página mostra "Preço: probabilidade alta/média/baixa"),
+margemLiquida, lanceMaximo, lanceRef  (margemBruta pode ser gravada, mas a página não usa mais)
+liquidez "Alta (< 6 meses)"|"Média (até 12)"|"Baixa (> 12)" · liquidezObs "Estimativa automática: <motivo>."
+debitoEstimado {cond:{inicio, fonte, meses, mensal, total, regra, limite, considerado}, calculadoEm}
+alertaDebito true · margemLiquidaComDebitoEstimado · lanceMaximoComDebitoEstimado   (a estimativa NÃO muda a fila)
+linkEdital (PDF do edital; nunca em linkAnuncio) · fotos [{id, nome, origem, em, por}] · arquivos [{id, nome, tipo, em, por}]
 pontos [{texto, link}]  (só o que faz repensar; avaliar.py já acrescenta os automáticos)
 juridico {E2: {...}}    (bloco Matrícula pré-preenchido pela leitura da matrícula — ver abaixo)
 mensagemCorretor "texto"  · corretorSugerido {nome, telefone, link}   ← NOVOS
@@ -49,8 +53,8 @@ origem "Garimpagem AAAA-MM-DD" · criadoEm · atualizadoEm (ISO) · observacoes 
 
 Card que JÁ existe:
 - **descartado / encerrado / nao_arrematado:** não mexa.
-- **outra coluna ou status:** só `update` (com `if_version`) de `pracas, vendaP25, margemBruta, margemLiquida,
-  lanceMaximo, lanceRef, notaConfianca, comparaveis, fotosUrls, pendente, atualizadoEm`. Nunca coluna, status,
+- **outra coluna ou status:** só `update` (com `if_version`) de `pracas, vendaP25, margemLiquida, lanceMaximo,
+  lanceRef, notaConfianca, liquidez (se vazia), comparaveis, fotosUrls, pendente, atualizadoEm`. Nunca coluna, status,
   pontos, débitos, jurídico, observações ou campos que o Magno preencheu.
 - **Venda direta que sumiu do CSV/lista** (lista da cidade lida inteira): `status "descartado"`,
   `motivoDescarte "outro"`, `motivoTexto "Saiu da venda direta (vendido ou retirado) — não apareceu em <data>"`,
@@ -82,3 +86,11 @@ Sem dados do leilão, sem valor do lance. O envio é sempre manual.
 
 `resultado {tipo "arrematado"|"nao_arrematado"|"deserto"|"suspenso", data, vencedor (R$ do lance vencedor, 0 se não divulgado),
 fonte (link), registradoEm, auto true}`. Card passa para `coluna 4`, `status` = tipo, `encerradoEm`.
+
+## Página do quadro (versão de 03/11/2026)
+
+- Nada é descartado sozinho por margem: abaixo do corte líquido o card fica no grupo "Abaixo de X% líquido".
+  Automáticos que continuam: Comprei PGFN sai da análise; card vai para o Histórico quando a última praça passa.
+- Aba Leilão: "Resumo do imóvel" (tudo para decidir) + tabela de lances (estimada pelos Padrões se não houver
+  cálculo salvo). Aba Decisão: parecer e preço teto. Ponto de atenção aparece logo abaixo da foto.
+- O código da página está no repositório: `leilao/quadro/captura-de-leilao.html`.
