@@ -89,6 +89,9 @@ python3 triagem.py --imoveis /tmp/g/imoveis.json --m2 /tmp/g/db/m2 --cards /tmp/
    Depois leia o **texto completo** de cada matrícula (`texto_completo`), não só o resumo; páginas em
    `conferir_imagem` (OCR < 80) e qualquer ato ilegível são lidos também pela imagem (`pg-N.png`).
    O resumo (`atos`, `alertas`) serve de índice.
+   **Modelo da leitura: Sonnet** (decisão do Magno em 03/11/2026, depois de comparar com o modelo maior nas mesmas
+   8 matrículas: achou os mesmos pontos e mais dois detalhes, gastando bem menos). Faça a leitura com um subagente
+   `model: "sonnet"` (lotes de até 8 matrículas por subagente), que devolve JSON com atos, bloco E2 e pontos.
    Leia SÓ o resumo (`imovel`, `atos`, `alertas`) e preencha o bloco jurídico "Matrícula" do card.
    - **Trava** (vira descarte com motivo "jurídico"): usufruto vitalício sem óbito; nua-propriedade;
      extrajudicial SEM consolidação averbada.
